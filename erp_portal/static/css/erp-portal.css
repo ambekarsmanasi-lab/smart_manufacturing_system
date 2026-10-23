@@ -691,3 +691,228 @@ body.erp-login-page .erp-portal {
     outline: 2px solid #e8c477;
     outline-offset: 3px;
 }
+
+
+/* =========================================
+   TYPOGRAPHY SYSTEM — MAINTENANCE PORTAL
+   ========================================= */
+
+.erp-portal {
+    --font-primary: #e8e9ed;
+    --font-secondary: #b0b5c0;
+    --font-muted: #9299a6;
+    --font-accent: #e8c477;
+
+    --font-xs: 12px;
+    --font-sm: 13px;
+    --font-base: 14px;
+    --font-lg: 16px;
+    --font-xl: 20px;
+    --font-title: 28px;
+
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: var(--font-base);
+    line-height: 1.55;
+    color: var(--font-primary);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Page identity */
+.erp-heading {
+    font-size: 22px;
+    font-weight: 650;
+    line-height: 1.25;
+    letter-spacing: -0.4px;
+    color: var(--font-primary);
+}
+
+.erp-subtitle {
+    margin-top: 4px;
+    font-size: var(--font-sm);
+    line-height: 1.5;
+    color: var(--font-secondary);
+}
+
+/* Main section headings */
+.erp-section-heading h2 {
+    margin: 0;
+    font-size: var(--font-xl);
+    font-weight: 650;
+    line-height: 1.35;
+    letter-spacing: -0.3px;
+    color: var(--font-primary);
+}
+
+.erp-section-heading p {
+    margin-top: 6px;
+    font-size: var(--font-base);
+    line-height: 1.6;
+    color: var(--font-secondary);
+}
+
+/* Panel titles */
+.erp-panel-header {
+    font-size: var(--font-xs);
+    font-weight: 650;
+    line-height: 1.5;
+    letter-spacing: 0.7px;
+    color: #b9c0cc;
+}
+
+/* Summary cards */
+.erp-summary-label {
+    font-size: var(--font-sm);
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--font-secondary);
+}
+
+.erp-summary-value {
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.7px;
+    font-variant-numeric: tabular-nums;
+    color: #f1f2f5;
+}
+
+.erp-summary-note {
+    font-size: var(--font-xs);
+    line-height: 1.5;
+    color: var(--font-muted);
+}
+
+/* Data tables */
+.erp-data-table {
+    font-size: var(--font-base);
+    line-height: 1.5;
+    color: var(--font-primary);
+}
+
+.erp-data-table th {
+    font-size: var(--font-xs);
+    font-weight: 600;
+    line-height: 1.45;
+    letter-spacing: 0.35px;
+    color: var(--font-secondary);
+}
+
+.erp-data-table td {
+    font-size: var(--font-base);
+    font-weight: 450;
+    line-height: 1.55;
+    color: var(--font-primary);
+}
+
+.erp-data-table td strong {
+    font-weight: 650;
+    color: #f1f2f5;
+}
+
+.erp-data-table small {
+    font-size: var(--font-xs);
+    line-height: 1.5;
+    color: var(--font-muted);
+}
+
+/* Form controls and buttons */
+.erp-button,
+.erp-role {
+    font-family: inherit;
+    font-size: var(--font-sm);
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.erp-button {
+    letter-spacing: 0.1px;
+}
+
+/* Fault detail labels and supporting content */
+.erp-detail-grid p,
+.erp-detail-block p {
+    font-size: var(--font-base);
+    line-height: 1.65;
+    color: var(--font-primary);
+}
+
+.erp-detail-block .erp-summary-label {
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+/* Navigation */
+.erp-nav-link {
+    font-size: var(--font-sm);
+    line-height: 1.5;
+}
+
+.erp-nav-label {
+    font-size: 10px;
+    font-weight: 650;
+    letter-spacing: 1px;
+    color: var(--font-muted);
+}
+
+/* Recommendation emphasis */
+.erp-recommendation-label {
+    font-size: var(--font-xs);
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--font-accent);
+}
+
+/* Keyboard accessibility */
+.erp-button:focus-visible,
+.erp-nav-link:focus-visible,
+.erp-data-table a:focus-visible {
+    outline: 2px solid var(--font-accent);
+    outline-offset: 3px;
+}
+
+
+/* Stronger hierarchy for work-order detail labels */
+
+.erp-portal .erp-detail-block .erp-summary-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: 0.35px;
+    color: #e8c477;
+}
+
+/* Instructions label */
+.erp-portal .erp-data-table td > strong {
+    color: #e8c477;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* Supporting content below each label */
+.erp-portal .erp-detail-block p {
+    margin-top: 0;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #e8e9ed;
+}
+
+
+/* Detail labels use the normal UI font, not the display font */
+.erp-portal .erp-detail-block .erp-summary-label {
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 650;
+    letter-spacing: 0;
+    color: #e8c477;
+    text-transform: none;
+}
+
+/* Keep detail content in the normal body font */
+.erp-portal .erp-detail-block p {
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #e8e9ed;
+}

@@ -33,6 +33,16 @@
             </a>
         </p>
 
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="erp-panel" role="status" aria-live="polite">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
         {% if fault %}
             <section class="erp-section">
                 <div class="erp-section-heading">
@@ -110,14 +120,85 @@
                         </div>
 
                         <div class="erp-detail-block">
-                            <span class="erp-summary-label">Summary</span>
+                            <span class="erp-summary-label">SUMMARY</span>
                             <p>{{ fault.summary or 'No summary recorded.' }}</p>
                         </div>
 
                         <div class="erp-detail-block">
-                            <span class="erp-summary-label">Recommended Action</span>
+                            <span class="erp-summary-label">RECOMMENDED ACTION</span>
                             <p>{{ fault.recommended_action or 'No recommended action recorded.' }}</p>
                         </div>
+                    </div>
+                    
+                    <div class="erp-panel">
+                        <div class="erp-panel-header">Technician Recommendations</div>
+
+
+                        {% if fault.status == 'OPEN' %}
+                            {% if recommendations %}
+                                <div class="erp-table-wrapper">
+                                    <table class="erp-data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Technician</th>
+                                                <th>Active Orders</th>
+                                                <th>Average Proficiency</th>
+                                                <th>Availability</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for technician in recommendations %}
+                                                <tr>
+                                                    <td>
+                                                        <strong>{{ technician.username }}</strong>
+                                                        {% if loop.first %}
+                                                            <div class="erp-recommendation-label">
+                                                                Top recommendation
+                                                            </div>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {{ technician.active_orders }}
+                                                        / {{ technician.max_active_orders }}
+                                                    </td>
+                                                    <td>
+                                                        {{ technician.avg_proficiency|round(2) }}
+                                                        / 3
+                                                    </td>
+                                                    <td>{{ technician.availability }}</td>
+                                                    <td>
+                                                        <form method="POST"
+                                                            action="{{ url_for('assign_technician', fault_id=fault.fault_id) }}">
+                                                            <input type="hidden"
+                                                                name="technician_id"
+                                                                value="{{ technician.technician_id }}">
+                                                            <button class="erp-button" type="submit">
+                                                                Assign
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="erp-empty-state">
+                                    <p>No qualified technicians found.</p>
+                                    <span>
+                                        Check technician skills, proficiency requirements,
+                                        availability, and active workload.
+                                    </span>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="erp-empty-state">
+                                <p>This fault has already been assigned or is no longer open.</p>
+                                <span>No further assignment is available for this fault.</span>
+                            </div>
+                        {% endif %}
+
                     </div>
                 </div>
 

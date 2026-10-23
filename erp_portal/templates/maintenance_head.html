@@ -193,13 +193,49 @@
                         </div>
                     </div>
 
-                    <div class="erp-panel">
-                        <div class="erp-panel-header">Repair Work Orders</div>
+                    
+                <div class="erp-panel">
+                    <div class="erp-panel-header">Repair Work Orders</div>
+
+                    {% if recent_work_orders %}
+                        <div class="erp-table-wrapper">
+                            <table class="erp-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Work Order</th>
+                                        <th>Machine</th>
+                                        <th>Fault</th>
+                                        <th>Technician</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Assigned</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in recent_work_orders %}
+                                        <tr>
+                                            <td>#{{ order.work_order_id }}</td>
+                                            <td>{{ order.machine_name }}</td>
+                                            <td>{{ order.fault_name }}</td>
+                                            <td>{{ order.technician_username }}</td>
+                                            <td>{{ order.priority }}</td>
+                                            <td>{{ order.status.replace('_', ' ') }}</td>
+                                            <td>
+                                                {{ order.assigned_at.strftime('%d %b %Y, %H:%M')
+                                                if order.assigned_at else '—' }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
                         <div class="erp-empty-state">
                             <p>No work orders to display.</p>
-                            <span>Assignment and review actions will be added when the workflow is implemented.</span>
+                            <span>Work orders will appear here when assignments are created.</span>
                         </div>
-                    </div>
+                    {% endif %}
+                </div>
                 </section>
 
                 <section class="erp-section" id="technicians">
