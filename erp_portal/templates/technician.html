@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Technician</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/erp-portal.css') }}">
+</head>
+<body style="margin: 0;">
+    <main class="erp-portal">
+        
+        <header class="erp-topbar">
+            <div class="erp-brand">
+                <div>
+                    <h1 class="erp-heading">Maintenance</h1>
+                    <div class="erp-subtitle">Maintenance Operations</div>
+                </div>
+            </div>
+
+            <span class="erp-role">Technician</span>
+        </header>
+
+
+        <div class="erp-content">
+            <section class="erp-panel">
+                <div class="erp-panel-header">
+                    Maintenance :: technician workspace
+                </div>
+
+                <div class="erp-panel-body">
+                    <p class="erp-status">Authenticated</p>
+                    <h2 class="erp-welcome">
+                        Welcome, {{ username }}
+                    </h2>
+                    <p class="erp-description">
+                        You are logged in as Technician.
+                    </p>
+
+                    <form method="POST"
+                          action="{{ url_for('logout') }}">
+                        <button class="erp-button" type="submit">
+                            Logout
+                        </button>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

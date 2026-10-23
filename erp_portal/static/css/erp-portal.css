@@ -1,0 +1,306 @@
+
+/* ========================================
+   Maintenance Portal
+   ======================================== */
+
+:root {
+    --erp-bg: #08080a;
+    --erp-grid: #101013;
+    --erp-panel: #141418;
+    --erp-panel-header: #18181d;
+    --erp-border: #26262c;
+
+    --erp-steel: #8b97a3;
+    --erp-steel-dim: rgba(139, 151, 163, 0.10);
+
+    --erp-amber: #c9a050;
+    --erp-green: #6aa97a;
+    --erp-red: #c06055;
+
+    --erp-text: #e5e5e2;
+    --erp-heading: #ecece9;
+    --erp-muted: #8e8e94;
+    --erp-faint: #4a4a50;
+
+    --erp-mono: "IBM Plex Mono", "Courier New", monospace;
+    --erp-sans: "Segoe UI", system-ui, sans-serif;
+}
+
+/* Base */
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+}
+
+html {
+    background: var(--erp-bg);
+}
+
+body {
+    color: var(--erp-text);
+    font-family: var(--erp-sans);
+}
+
+.erp-portal,
+.erp-portal *,
+.erp-portal *::before,
+.erp-portal *::after {
+    box-sizing: border-box;
+}
+
+.erp-portal {
+    min-height: 100vh;
+    padding: 20px 28px 40px;
+    background:
+        linear-gradient(var(--erp-grid) 1px, transparent 1px)
+            0 0 / 100% 28px,
+        linear-gradient(90deg, var(--erp-grid) 1px, transparent 1px)
+            0 0 / 28px 100%,
+        var(--erp-bg);
+    color: var(--erp-text);
+    font-family: var(--erp-sans);
+}
+
+/* Header */
+
+.erp-portal .erp-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--erp-border);
+}
+
+.erp-portal .erp-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.erp-portal .erp-brand-mark {
+    padding: 5px 8px;
+    border: 1px solid rgba(139, 151, 163, 0.35);
+    border-radius: 2px;
+    background: var(--erp-steel-dim);
+    color: var(--erp-steel);
+    font: 12px var(--erp-mono);
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.erp-portal .erp-heading {
+    margin: 0;
+    color: var(--erp-heading);
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.erp-portal .erp-subtitle {
+    margin-top: 4px;
+    color: var(--erp-muted);
+    font: 12px var(--erp-mono);
+}
+
+.erp-portal .erp-role {
+    display: inline-block;
+    padding: 5px 8px;
+    border: 1px solid var(--erp-border);
+    color: var(--erp-steel);
+    font: 11px var(--erp-mono);
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+
+/* Dashboard content */
+
+.erp-portal .erp-content {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.erp-portal .erp-panel {
+    border: 1px solid var(--erp-border);
+    background: var(--erp-panel);
+}
+
+.erp-portal .erp-panel-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--erp-border);
+    background: var(--erp-panel-header);
+    color: var(--erp-muted);
+    font: 11px var(--erp-mono);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.erp-portal .erp-panel-body {
+    padding: 20px;
+}
+
+.erp-portal .erp-welcome {
+    margin: 0 0 10px;
+    color: var(--erp-text);
+    font-size: 24px;
+    font-weight: 500;
+}
+
+.erp-portal .erp-description {
+    margin: 0;
+    color: var(--erp-muted);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* Status */
+
+.erp-portal .erp-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--erp-green);
+    font: 11px var(--erp-mono);
+    text-transform: uppercase;
+}
+
+.erp-portal .erp-status::before {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    content: "";
+}
+
+/* Buttons */
+
+.erp-portal .erp-button,
+.erp-portal .erp-login button {
+    padding: 10px 14px;
+    border: 1px solid rgba(139, 151, 163, 0.35);
+    border-radius: 2px;
+    background: var(--erp-steel-dim);
+    color: var(--erp-text);
+    font: 12px var(--erp-mono);
+    cursor: pointer;
+}
+
+.erp-portal .erp-button:hover,
+.erp-portal .erp-login button:hover {
+    border-color: var(--erp-steel);
+    background: rgba(139, 151, 163, 0.18);
+}
+
+/* Messages */
+
+.erp-portal .erp-message {
+    margin: 0 0 16px;
+    color: var(--erp-red);
+    font-size: 12px;
+}
+
+/* Login */
+
+.erp-portal .erp-login {
+    width: 100%;
+    max-width: 400px;
+    margin: 0;
+    padding: 28px;
+    border: 1px solid var(--erp-border);
+    border-radius: 2px;
+    background: var(--erp-panel);
+}
+
+.erp-portal .erp-login h1 {
+    margin: 0 0 8px;
+    color: var(--erp-text);
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+.erp-portal .erp-login .erp-subtitle {
+    margin-bottom: 28px;
+}
+
+.erp-portal .erp-login label {
+    display: block;
+    margin: 18px 0 8px;
+    color: var(--erp-muted);
+    font: 11px var(--erp-mono);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.erp-portal .erp-login input {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--erp-border);
+    border-radius: 2px;
+    outline: none;
+    background: var(--erp-bg);
+    color: var(--erp-text);
+    font: 13px var(--erp-mono);
+}
+
+.erp-portal .erp-login input:focus {
+    border-color: var(--erp-steel);
+}
+
+.erp-portal .erp-login button {
+    width: 100%;
+    margin-top: 24px;
+    padding: 12px;
+    letter-spacing: 0.5px;
+}
+
+.erp-portal .erp-login form {
+    margin-bottom: 0;
+}
+
+/* Login page layout
+   Add erp-login-page to the body's class list. */
+
+body.erp-login-page {
+    min-height: 100vh;
+}
+
+body.erp-login-page .erp-portal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 24px;
+}
+
+/* Responsive */
+
+@media (max-width: 600px) {
+    .erp-portal {
+        padding: 16px;
+    }
+
+    .erp-portal .erp-topbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .erp-portal .erp-panel-body {
+        padding: 16px;
+    }
+
+    body.erp-login-page .erp-portal {
+        padding: 16px;
+    }
+
+    .erp-portal .erp-login {
+        padding: 22px;
+    }
+}
