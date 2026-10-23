@@ -8,9 +8,8 @@
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/erp-portal.css') }}">
 </head>
-<body style="margin: 0;">
+<body>
     <main class="erp-portal">
-        
         <header class="erp-topbar">
             <div class="erp-brand">
                 <div>
@@ -19,34 +18,172 @@
                 </div>
             </div>
 
-            <span class="erp-role">Maintenance Head</span>
+            <div class="erp-header-actions">
+                <span class="erp-role">Maintenance Head</span>
+                <form method="POST" action="{{ url_for('logout') }}">
+                    <button class="erp-button" type="submit">Logout</button>
+                </form>
+            </div>
         </header>
 
+        <div class="erp-layout">
+            <nav class="erp-sidebar" aria-label="Maintenance navigation">
+                <div class="erp-nav-label">WORKSPACE</div>
+                <a class="erp-nav-link active" href="#overview">Overview</a>
+                <a class="erp-nav-link" href="#faults">Faults</a>
+                <a class="erp-nav-link" href="#work-orders">Work Orders</a>
+                <a class="erp-nav-link" href="#technicians">Technicians</a>
+            </nav>
 
-        <div class="erp-content">
-            <section class="erp-panel">
-                <div class="erp-panel-header">
-                    Maintenance :: overview
-                </div>
+            <div class="erp-main-content">
+                <section class="erp-section" id="overview">
+                    <div class="erp-section-heading">
+                        <div>
+                            <h2>Overview</h2>
+                            <p>Current maintenance activity and outstanding work.</p>
+                        </div>
+                    </div>
 
-                <div class="erp-panel-body">
-                    <p class="erp-status">Authenticated</p>
-                    <h2 class="erp-welcome">
-                        Welcome, {{ username }}
-                    </h2>
-                    <p class="erp-description">
-                        You are logged in as Maintenance Head.
-                    </p>
+                    <div class="erp-summary-grid">
+                        <article class="erp-summary-card">
+                            <span class="erp-summary-label">Open Faults</span>
+                            <span class="erp-summary-value">—</span>
+                            <span class="erp-summary-note">Awaiting resolution</span>
+                        </article>
 
-                    <form method="POST"
-                          action="{{ url_for('logout') }}">
-                        <button class="erp-button" type="submit">
-                            Logout
-                        </button>
-                    </form>
-                </div>
-            </section>
+                        <article class="erp-summary-card">
+                            <span class="erp-summary-label">Pending Assignment</span>
+                            <span class="erp-summary-value">—</span>
+                            <span class="erp-summary-note">Requiring technician assignment</span>
+                        </article>
+
+                        <article class="erp-summary-card">
+                            <span class="erp-summary-label">In Progress</span>
+                            <span class="erp-summary-value">—</span>
+                            <span class="erp-summary-note">Repairs underway</span>
+                        </article>
+
+                        <article class="erp-summary-card">
+                            <span class="erp-summary-label">Reports to Review</span>
+                            <span class="erp-summary-value">—</span>
+                            <span class="erp-summary-note">Awaiting your decision</span>
+                        </article>
+                    </div>
+
+                    <div class="erp-panel">
+                        <div class="erp-panel-header">Recent Work Orders</div>
+                        <div class="erp-empty-state">
+                            <p>No work orders to display yet.</p>
+                            <span>Work orders will appear here when records are connected.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="erp-section" id="faults">
+                    <div class="erp-section-heading">
+                        <div>
+                            <h2>Faults</h2>
+                            <p>Review detected machine faults and their severity.</p>
+                        </div>
+                    </div>
+
+                    <div class="erp-panel">
+                        <div class="erp-panel-header">Detected Faults</div>
+                        <div class="erp-empty-state">
+                            <p>No fault records to display.</p>
+                            <span>Detected faults will appear here when connected to the database.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="erp-section" id="work-orders">
+                    <div class="erp-section-heading">
+                        <div>
+                            <h2>Work Orders</h2>
+                            <p>Manage assignments, repair progress, and submitted reports.</p>
+                        </div>
+                    </div>
+
+                    <div class="erp-panel">
+                        <div class="erp-panel-header">Repair Work Orders</div>
+                        <div class="erp-empty-state">
+                            <p>No work orders to display.</p>
+                            <span>Assignment and review actions will be added when the workflow is implemented.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="erp-section" id="technicians">
+                    <div class="erp-section-heading">
+                        <div>
+                            <h2>Technicians</h2>
+                            <p>View technician skills for repair assignment recommendations.</p>
+                        </div>
+                    </div>
+
+                    <div class="erp-panel">
+                        <div class="erp-panel-header">Technician Directory</div>
+                        <div class="erp-empty-state">
+                            <p>No technician records to display.</p>
+                            <span>Technician details and recorded skills will be connected later.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <footer class="erp-footer">
+                    Maintenance Operations
+                </footer>
+            </div>
         </div>
     </main>
+    
+    <script>
+        const sections = document.querySelectorAll(".erp-section");
+        const navLinks = document.querySelectorAll(".erp-nav-link");
+
+        function updateActiveLink() {
+            // If we're at the bottom of the page, activate the last section.
+            const atBottom =
+                window.innerHeight + window.scrollY >=
+                document.documentElement.scrollHeight - 5;
+
+            if (atBottom) {
+                setActiveLink(sections[sections.length - 1].id);
+                return;
+            }
+
+            // Otherwise, find the section nearest the top of the viewport.
+            let currentSection = sections[0];
+
+            sections.forEach(section => {
+                if (section.getBoundingClientRect().top <= window.innerHeight * 0.35) {
+                    currentSection = section;
+                }
+            });
+
+            setActiveLink(currentSection.id);
+        }
+
+        function setActiveLink(sectionId) {
+            navLinks.forEach(link => {
+                const isActive = link.getAttribute("href") === `#${sectionId}`;
+
+                link.classList.toggle("active", isActive);
+
+                if (isActive) {
+                    link.setAttribute("aria-current", "location");
+                } else {
+                    link.removeAttribute("aria-current");
+                }
+            });
+        }
+
+        window.addEventListener("scroll", updateActiveLink);
+        window.addEventListener("resize", updateActiveLink);
+
+        // Set the correct highlight on initial page load.
+        updateActiveLink();
+    </script>
+
 </body>
 </html>

@@ -304,3 +304,200 @@ body.erp-login-page .erp-portal {
         padding: 22px;
     }
 }
+
+
+/* Maintenance Head workspace */
+
+.erp-portal .erp-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.erp-portal .erp-header-actions form {
+    margin: 0;
+}
+
+.erp-portal .erp-layout {
+    display: grid;
+    grid-template-columns: 190px minmax(0, 1fr);
+    gap: 28px;
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+.erp-portal .erp-sidebar {
+    position: sticky;
+    top: 20px;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 0;
+    border-right: 1px solid var(--erp-border);
+}
+
+.erp-portal .erp-nav-label {
+    padding: 8px 14px 12px;
+    color: var(--erp-faint);
+    font: 10px var(--erp-mono);
+    letter-spacing: 1px;
+}
+
+.erp-portal .erp-nav-link {
+    display: block;
+    margin-right: 12px;
+    padding: 11px 14px;
+    border-left: 2px solid transparent;
+    color: var(--erp-muted);
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.erp-portal .erp-nav-link:hover,
+.erp-portal .erp-nav-link.active {
+    border-left-color: var(--erp-steel);
+    background: var(--erp-steel-dim);
+    color: var(--erp-text);
+}
+
+.erp-portal .erp-main-content {
+    min-width: 0;
+}
+
+.erp-portal .erp-section {
+    margin-bottom: 44px;
+    scroll-margin-top: 20px;
+}
+
+.erp-portal .erp-section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.erp-portal .erp-section-heading h2 {
+    margin: 0;
+    color: var(--erp-heading);
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.erp-portal .erp-section-heading p {
+    margin: 6px 0 0;
+    color: var(--erp-muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.erp-portal .erp-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.erp-portal .erp-summary-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid var(--erp-border);
+    background: var(--erp-panel);
+}
+
+.erp-portal .erp-summary-label {
+    color: var(--erp-muted);
+    font: 11px var(--erp-mono);
+    line-height: 1.5;
+}
+
+.erp-portal .erp-summary-value {
+    color: var(--erp-text);
+    font: 26px var(--erp-mono);
+}
+
+.erp-portal .erp-summary-note {
+    color: var(--erp-faint);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.erp-portal .erp-empty-state {
+    padding: 28px 20px;
+    text-align: center;
+}
+
+.erp-portal .erp-empty-state p {
+    margin: 0 0 8px;
+    color: var(--erp-text);
+    font-size: 13px;
+}
+
+.erp-portal .erp-empty-state span {
+    color: var(--erp-muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.erp-portal .erp-footer {
+    padding: 18px 0;
+    border-top: 1px solid var(--erp-border);
+    color: var(--erp-faint);
+    font: 10px var(--erp-mono);
+}
+
+/* Responsive layout */
+
+@media (max-width: 1000px) {
+    .erp-portal .erp-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .erp-portal .erp-layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+    }
+
+    .erp-portal .erp-sidebar {
+        position: static;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 4px;
+        border-right: 0;
+        border-bottom: 1px solid var(--erp-border);
+        padding: 0 0 12px;
+    }
+
+    .erp-portal .erp-nav-label {
+        width: 100%;
+    }
+
+    .erp-portal .erp-nav-link {
+        margin: 0;
+        border-left: 0;
+        border-bottom: 2px solid transparent;
+        padding: 9px 10px;
+    }
+
+    .erp-portal .erp-nav-link:hover,
+    .erp-portal .erp-nav-link.active {
+        border-bottom-color: var(--erp-steel);
+    }
+
+    .erp-portal .erp-header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 420px) {
+    .erp-portal .erp-summary-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

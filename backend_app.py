@@ -20,7 +20,7 @@ CORS(app)  # allows the frontend HTML file to fetch this API directly
 DB_CONFIG = {
     "host": "localhost",
     "user": "root",          # <-- change to your MySQL username
-    "password": "YOUR_PASSWORD",  # <-- change to your MySQL password
+    "password": "your_password",  # <-- change to your MySQL password
     "database": "smart_manufacturing_ot",
 }
 
