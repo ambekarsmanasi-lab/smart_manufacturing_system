@@ -44,38 +44,76 @@
                         </div>
                     </div>
 
+                    
                     <div class="erp-summary-grid">
                         <article class="erp-summary-card">
                             <span class="erp-summary-label">Open Faults</span>
-                            <span class="erp-summary-value">—</span>
+                            <span class="erp-summary-value">{{ summary.open_faults }}</span>
                             <span class="erp-summary-note">Awaiting resolution</span>
                         </article>
 
                         <article class="erp-summary-card">
                             <span class="erp-summary-label">Pending Assignment</span>
-                            <span class="erp-summary-value">—</span>
+                            <span class="erp-summary-value">{{ summary.pending_assignment }}</span>
                             <span class="erp-summary-note">Requiring technician assignment</span>
                         </article>
 
                         <article class="erp-summary-card">
                             <span class="erp-summary-label">In Progress</span>
-                            <span class="erp-summary-value">—</span>
+                            <span class="erp-summary-value">{{ summary.in_progress }}</span>
                             <span class="erp-summary-note">Repairs underway</span>
                         </article>
 
                         <article class="erp-summary-card">
                             <span class="erp-summary-label">Reports to Review</span>
-                            <span class="erp-summary-value">—</span>
+                            <span class="erp-summary-value">{{ summary.reports_to_review }}</span>
                             <span class="erp-summary-note">Awaiting your decision</span>
                         </article>
                     </div>
 
+
                     <div class="erp-panel">
                         <div class="erp-panel-header">Recent Work Orders</div>
+                        
+                    {% if recent_work_orders %}
+                        <div class="erp-table-wrapper">
+                            <table class="erp-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Work Order</th>
+                                        <th>Machine</th>
+                                        <th>Fault</th>
+                                        <th>Technician</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Assigned</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in recent_work_orders %}
+                                        <tr>
+                                            <td>#{{ order.work_order_id }}</td>
+                                            <td>{{ order.machine_name }}</td>
+                                            <td>{{ order.fault_name }}</td>
+                                            <td>{{ order.technician_username }}</td>
+                                            <td>{{ order.priority }}</td>
+                                            <td>{{ order.status.replace('_', ' ') }}</td>
+                                            <td>
+                                                {{ order.assigned_at.strftime('%d %b %Y, %H:%M')
+                                                if order.assigned_at else '—' }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
                         <div class="erp-empty-state">
                             <p>No work orders to display yet.</p>
-                            <span>Work orders will appear here when records are connected.</span>
+                            <span>Work orders will appear here when assignments are created.</span>
                         </div>
+                    {% endif %}
+
                     </div>
                 </section>
 
@@ -88,11 +126,62 @@
                     </div>
 
                     <div class="erp-panel">
-                        <div class="erp-panel-header">Detected Faults</div>
+                        <div class="erp-panel-header">Detected Faults</div>                        
+                    {% if faults %}
+                        <div class="erp-table-wrapper">
+                            <table class="erp-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fault</th>
+                                        <th>Machine</th>
+                                        <th>Production Line</th>
+                                        <th>Severity</th>
+                                        <th>Confidence</th>
+                                        <th>Status</th>
+                                        <th>Detected</th>
+                                        <th>Occurrences</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for fault in faults %}
+                                        <tr>
+                                            <td>
+                                                <strong>#{{ fault.fault_id }}</strong>
+                                                <div>
+                                                    <a href="{{ url_for('fault_detail', fault_id=fault.fault_id) }}">
+                                                        {{ fault.fault_name }}
+                                                    </a>
+                                                </div>
+                                                <small>{{ fault.fault_code }}</small>
+                                            </td>
+                                            <td>{{ fault.machine_name }}</td>
+                                            <td>{{ fault.production_line }}</td>
+                                            <td>{{ fault.severity }}</td>
+                                            <td>
+                                                {% if fault.confidence is not none %}
+                                                    {{ (fault.confidence * 100)|round(1) }}%
+                                                {% else %}
+                                                    —
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ fault.status }}</td>
+                                            <td>
+                                                {{ fault.detected_at.strftime('%d %b %Y, %H:%M')
+                                                if fault.detected_at else '—' }}
+                                            </td>
+                                            <td>{{ fault.occurrence_count }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
                         <div class="erp-empty-state">
                             <p>No fault records to display.</p>
-                            <span>Detected faults will appear here when connected to the database.</span>
+                            <span>Detected faults will appear here when records are received.</span>
                         </div>
+                    {% endif %}
+
                     </div>
                 </section>
 

@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Fault Details | Maintenance</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/erp-portal.css') }}">
+</head>
+<body class="erp-fault-detail-page">
+<main class="erp-portal">
+    <header class="erp-topbar">
+        <div class="erp-brand">
+            <div>
+                <h1 class="erp-heading">Maintenance</h1>
+                <div class="erp-subtitle">Maintenance Operations</div>
+            </div>
+        </div>
+
+        <div class="erp-header-actions">
+            <span class="erp-role">Maintenance Head</span>
+            <form method="POST" action="{{ url_for('logout') }}">
+                <button class="erp-button" type="submit">Logout</button>
+            </form>
+        </div>
+    </header>
+
+    <div class="erp-content">
+        <p>
+            <a href="{{ url_for('maintenance_head') }}#faults">
+                &larr; Back to Faults
+            </a>
+        </p>
+
+        {% if fault %}
+            <section class="erp-section">
+                <div class="erp-section-heading">
+                    <div>
+                        <h2>Fault #{{ fault.fault_id }}</h2>
+                        <p>{{ fault.fault_name }} · {{ fault.fault_code }}</p>
+                    </div>
+                    <span class="erp-role">{{ fault.status }}</span>
+                </div>
+
+                <div class="erp-panel">
+                    <div class="erp-panel-header">Fault Information</div>
+                    <div class="erp-panel-body">
+                        <div class="erp-detail-grid">
+                            <div>
+                                <span class="erp-summary-label">Machine</span>
+                                <p>{{ fault.machine_name }}</p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Production Line</span>
+                                <p>{{ fault.production_line }}</p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Machine Type</span>
+                                <p>{{ fault.machine_type or '—' }}</p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Machine Criticality</span>
+                                <p>{{ fault.criticality }}</p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Severity</span>
+                                <p>{{ fault.severity }}</p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Category</span>
+                                <p>{{ fault.category.replace('_', ' ') }}</p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Confidence</span>
+                                <p>
+                                    {% if fault.confidence is not none %}
+                                        {{ (fault.confidence * 100)|round(1) }}%
+                                    {% else %}
+                                        Not recorded
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Estimated Time to Failure</span>
+                                <p>
+                                    {% if fault.est_ttf_hrs is not none %}
+                                        {{ fault.est_ttf_hrs }} hours
+                                    {% else %}
+                                        Not estimated
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">First Detected</span>
+                                <p>{{ fault.detected_at.strftime('%d %b %Y, %H:%M') }}</p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Last Seen</span>
+                                <p>{{ fault.last_seen_at.strftime('%d %b %Y, %H:%M') }}</p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Occurrences</span>
+                                <p>{{ fault.occurrence_count }}</p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Model Version</span>
+                                <p>{{ fault.model_version or 'Not recorded' }}</p>
+                            </div>
+                        </div>
+
+                        <div class="erp-detail-block">
+                            <span class="erp-summary-label">Summary</span>
+                            <p>{{ fault.summary or 'No summary recorded.' }}</p>
+                        </div>
+
+                        <div class="erp-detail-block">
+                            <span class="erp-summary-label">Recommended Action</span>
+                            <p>{{ fault.recommended_action or 'No recommended action recorded.' }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="erp-panel">
+                    <div class="erp-panel-header">Sensor Evidence</div>
+                    {% if evidence %}
+                        <div class="erp-table-wrapper">
+                            <table class="erp-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Sensor ID</th>
+                                        <th>Sensor Type</th>
+                                        <th>Observed</th>
+                                        <th>Expected</th>
+                                        <th>Unit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in evidence %}
+                                        <tr>
+                                            <td>{{ item.sensor_id }}</td>
+                                            <td>{{ item.sensor_type }}</td>
+                                            <td>
+                                                {{ item.observed_value if item.observed_value is not none else '—' }}
+                                            </td>
+                                            <td>
+                                                {{ item.expected_value if item.expected_value is not none else '—' }}
+                                            </td>
+                                            <td>{{ item.unit or '—' }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="erp-empty-state">
+                            <p>No sensor evidence recorded.</p>
+                            <span>No evidence entries are linked to this fault.</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+        {% else %}
+            <section class="erp-panel">
+                <div class="erp-empty-state">
+                    <h2>Fault not found</h2>
+                    <p>No fault exists with that ID.</p>
+                </div>
+            </section>
+        {% endif %}
+    </div>
+</main>
+</body>
+</html>

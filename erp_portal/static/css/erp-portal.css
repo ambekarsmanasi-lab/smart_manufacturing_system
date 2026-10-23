@@ -320,7 +320,7 @@ body.erp-login-page .erp-portal {
 
 .erp-portal .erp-layout {
     display: grid;
-    grid-template-columns: 190px minmax(0, 1fr);
+    grid-template-columns: 150px minmax(0, 1fr);
     gap: 28px;
     max-width: 1500px;
     margin: 0 auto;
@@ -500,4 +500,194 @@ body.erp-login-page .erp-portal {
     .erp-portal .erp-summary-grid {
         grid-template-columns: minmax(0, 1fr);
     }
+}
+
+
+.erp-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.erp-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+}
+
+.erp-data-table th,
+.erp-data-table td {
+    padding: 13px 15px;
+    border-bottom: 1px solid var(--erp-border);
+    white-space: nowrap;
+}
+
+.erp-data-table th {
+    color: var(--erp-muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.erp-data-table td {
+    color: var(--erp-text);
+}
+
+.erp-data-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.erp-data-table small {
+    display: block;
+    margin-top: 4px;
+    color: var(--erp-muted);
+}
+
+.erp-data-table td div {
+    margin-top: 4px;
+}
+
+
+.erp-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.erp-detail-grid p,
+.erp-detail-block p {
+    margin: 8px 0 0;
+    color: var(--erp-text);
+    overflow-wrap: anywhere;
+}
+
+.erp-detail-block {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--erp-border);
+}
+
+.erp-fault-link {
+    color: var(--erp-text);
+    text-decoration: none;
+}
+
+.erp-fault-link:hover {
+    color: var(--erp-amber);
+}
+
+.erp-fault-link div {
+    margin-top: 5px;
+}
+
+@media (max-width: 800px) {
+    .erp-detail-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .erp-detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* Fault details: consistent typography hierarchy */
+.erp-fault-detail-page {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--erp-text);
+}
+
+.erp-fault-detail-page h2 {
+    margin: 0;
+    font-family: inherit;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+}
+
+.erp-fault-detail-page .erp-subtitle {
+    font-family: inherit;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.erp-fault-detail-page .erp-section-heading > div > p {
+    margin: 6px 0 0;
+    color: var(--erp-muted);
+    font-size: 13px;
+}
+
+.erp-fault-detail-page .erp-panel-header {
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.erp-fault-detail-page .erp-summary-label {
+    display: block;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.03em;
+    color: var(--erp-muted);
+}
+
+.erp-fault-detail-page .erp-detail-grid p,
+.erp-fault-detail-page .erp-detail-block p {
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.erp-fault-detail-page .erp-detail-block p {
+    font-weight: 400;
+}
+
+.erp-fault-detail-page .erp-role {
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.erp-fault-detail-page a {
+    color: var(--erp-amber);
+    text-decoration: none;
+}
+
+.erp-fault-detail-page a:hover {
+    text-decoration: underline;
+}
+
+.erp-fault-detail-page .erp-button {
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Fault detail link — high contrast on dark background */
+#faults .erp-data-table a,
+#faults .erp-data-table a:visited {
+    color: #e8c477;
+    text-decoration: none;
+}
+
+#faults .erp-data-table a:hover {
+    color: #ffe2a0;
+    text-decoration: underline;
+}
+
+#faults .erp-data-table a:focus-visible {
+    outline: 2px solid #e8c477;
+    outline-offset: 3px;
 }
