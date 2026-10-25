@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Technician Details</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/erp-portal.css') }}">
+</head>
+
+<body>
+    <main class="erp-portal">
+
+        <header class="erp-topbar">
+            <div class="erp-brand">
+                <div>
+                    <h1 class="erp-heading">Maintenance</h1>
+                    <div class="erp-subtitle">
+                        Maintenance Operations
+                    </div>
+                </div>
+            </div>
+
+            <div class="erp-header-actions">
+                <span class="erp-role">Maintenance Head</span>
+
+                <form method="POST" action="{{ url_for('logout') }}">
+                    <button class="erp-button" type="submit">
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        <div class="erp-layout">
+
+            <nav class="erp-sidebar" aria-label="Maintenance navigation">
+                <div class="erp-nav-label">WORKSPACE</div>
+
+                <a class="erp-nav-link"
+                   href="{{ url_for('maintenance_head') }}#overview">
+                    Overview
+                </a>
+
+                <a class="erp-nav-link"
+                   href="{{ url_for('maintenance_head') }}#faults">
+                    Faults
+                </a>
+
+                <a class="erp-nav-link"
+                   href="{{ url_for('maintenance_head') }}#work-orders">
+                    Work Orders
+                </a>
+
+                <a class="erp-nav-link active"
+                   href="{{ url_for('maintenance_head') }}#technicians">
+                    Technicians
+                </a>
+            </nav>
+
+            <div class="erp-main-content">
+
+                <p>
+                    <a href="{{ url_for('maintenance_head') }}#technicians">
+                        ← Back to Technician Directory
+                    </a>
+                </p>
+
+                <section class="erp-section">
+
+                    <div class="erp-section-heading">
+                        <div>
+                            <h2>{{ technician.username }}</h2>
+                            <p>
+                                Technician ID #{{ technician.technician_id }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="erp-panel technician-profile-panel">
+                        <div class="erp-panel-header">
+                            TECHNICIAN INFORMATION
+                        </div>
+
+                        <div class="technician-profile-grid">
+
+                            <div class="technician-profile-item">
+                                <span class="technician-profile-label">Username</span>
+                                <strong>{{ technician.username }}</strong>
+                            </div>
+
+                            <div class="technician-profile-item">
+                                <span class="technician-profile-label">Availability</span>
+                                <strong class="technician-availability">
+                                    {{ technician.availability.replace('_', ' ') }}
+                                </strong>
+                            </div>
+
+                            <div class="technician-profile-item">
+                                <span class="technician-profile-label">Active Work Orders</span>
+                                <strong>
+                                    {{ technician.active_orders }}
+                                    <span class="technician-muted">
+                                        / {{ technician.max_active_orders }}
+                                    </span>
+                                </strong>
+                            </div>
+
+                            <div class="technician-profile-item">
+                                <span class="technician-profile-label">Completed Work Orders</span>
+                                <strong>{{ technician.completed_orders }}</strong>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="erp-panel">
+                        <div class="erp-panel-header">
+                            RECORDED SKILLS
+                        </div>
+
+                        {% if skills %}
+                            <div class="erp-table-wrapper">
+                                <table class="erp-data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Skill</th>
+                                            <th>Proficiency</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for skill in skills %}
+                                            <tr>
+                                                <td>{{ skill.skill_name }}</td>
+                                                <td>
+                                                    Level {{ skill.proficiency }}
+                                                    {% if skill.proficiency == 1 %}
+                                                        — Basic
+                                                    {% elif skill.proficiency == 2 %}
+                                                        — Intermediate
+                                                    {% elif skill.proficiency == 3 %}
+                                                        — Advanced
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="erp-empty-state">
+                                No skills have been recorded for this technician.
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="erp-panel">
+                        <div class="erp-panel-header">
+                            WORK ORDER HISTORY
+                        </div>
+
+                        {% if work_orders %}
+                            <div class="erp-table-wrapper">
+                                <table class="erp-data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Work Order</th>
+                                            <th>Machine</th>
+                                            <th>Fault</th>
+                                            <th>Severity</th>
+                                            <th>Priority</th>
+                                            <th>Status</th>
+                                            <th>Assigned</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for order in work_orders %}
+                                            <tr>
+                                                <td>#{{ order.work_order_id }}</td>
+                                                <td>{{ order.machine_name }}</td>
+                                                <td>{{ order.fault_name }}</td>
+                                                <td>{{ order.severity }}</td>
+                                                <td>{{ order.priority }}</td>
+                                                <td>
+                                                    {{ order.status.replace('_', ' ') }}
+                                                </td>
+                                                <td>
+                                                    {{ order.assigned_at.strftime('%d %b %Y, %H:%M')
+                                                       if order.assigned_at else '—' }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="erp-empty-state">
+                                This technician has no assigned work orders.
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </section>
+
+                <footer class="erp-footer">
+                    Maintenance Operations
+                </footer>
+
+            </div>
+        </div>
+    </main>
+</body>
+</html>

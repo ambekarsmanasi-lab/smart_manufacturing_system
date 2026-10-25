@@ -124,9 +124,10 @@
                             <p>{{ fault.summary or 'No summary recorded.' }}</p>
                         </div>
 
-                        <div class="erp-detail-block">
-                            <span class="erp-summary-label">RECOMMENDED ACTION</span>
-                            <p>{{ fault.recommended_action or 'No recommended action recorded.' }}</p>
+                            <div class="erp-detail-block">
+                                <span class="erp-summary-label">RECOMMENDED ACTION</span>
+                                <p>{{ fault.recommended_action or 'No recommended action recorded.' }}</p>
+                            </div>
                         </div>
                     </div>
                     
@@ -200,10 +201,95 @@
                         {% endif %}
 
                     </div>
-                </div>
 
-                <div class="erp-panel">
-                    <div class="erp-panel-header">Sensor Evidence</div>
+                    <div class="erp-panel">
+                        
+                        <div class="erp-panel-header">
+                            Manual Technician Assignment
+                        </div>
+
+                        {% if fault.status == 'OPEN' %}
+                            <div class="manual-assignment-content">
+                                <p class="manual-assignment-description">
+                                    Assign this fault to a technician directly. Skill and workload
+                                    restrictions may be overridden with a documented reason.
+                                </p>
+
+                                <form method="POST"
+                                    action="{{ url_for('assign_technician', fault_id=fault.fault_id) }}"
+                                    class="manual-assignment-form">
+
+                                    <div class="manual-form-group">
+                                        <label for="manual-technician">Technician</label>
+
+                                        <select id="manual-technician"
+                                                name="technician_id"
+                                                class="manual-form-control"
+                                                required>
+                                            <option value="">Select a technician</option>
+
+                                            {% for technician in all_technicians %}
+                                                <option value="{{ technician.technician_id }}"
+                                                    {% if technician.availability != 'AVAILABLE' %}
+                                                        disabled
+                                                    {% endif %}>
+                                                    {{ technician.username }}
+                                                    · {{ technician.availability }}
+                                                    · {{ technician.active_orders }}/{{ technician.max_active_orders }} active orders
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+
+                                        <span class="manual-field-hint">
+                                            Technicians who are unavailable cannot be selected.
+                                        </span>
+                                    </div>
+
+                                    <div class="manual-form-group">
+                                        <label for="override-reason">Assignment justification</label>
+
+                                        <textarea id="override-reason"
+                                                name="override_reason"
+                                                class="manual-form-control"
+                                                rows="3"
+                                                maxlength="500"
+                                                placeholder="Explain why this technician was selected..."
+                                                required></textarea>
+                                    </div>
+
+                                    <label class="manual-override-confirmation">
+                                        <input type="checkbox"
+                                            name="confirm_override"
+                                            value="1"
+                                            required>
+
+                                        <span>
+                                            <strong>Confirm manual assignment</strong>
+                                            <small>
+                                                I understand that this assignment may exceed the
+                                                technician's workload limit or bypass required
+                                                skill proficiency checks.
+                                            </small>
+                                        </span>
+                                    </label>
+
+                                    <div class="manual-assignment-actions">
+                                        <button type="submit" class="erp-button">
+                                            Assign Technician
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        {% else %}
+                            <div class="erp-empty-state">
+                                <p>This fault is no longer open for assignment.</p>
+                                <span>No further assignment is available for this fault.</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="erp-panel">
+                        <div class="erp-panel-header">Sensor Evidence</div>
                     {% if evidence %}
                         <div class="erp-table-wrapper">
                             <table class="erp-data-table">

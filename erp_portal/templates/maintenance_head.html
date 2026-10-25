@@ -7,6 +7,188 @@
     <title>Maintenance Head</title>
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/erp-portal.css') }}">
+    
+    <style>
+        .fault-toolbar {
+            display: flex;
+            align-items: end;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 16px;
+            border-bottom: 1px solid #26262c;
+            background: #141418;
+        }
+
+        .fault-control {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            min-width: 190px;
+        }
+
+        .fault-control > span {
+            color: #a7a7af;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .fault-select {
+            appearance: none;
+            min-width: 190px;
+            padding: 10px 36px 10px 12px;
+            border: 1px solid #34343b;
+            border-radius: 5px;
+            background-color: #101013;
+            color: #e5e5e2;
+            font: inherit;
+            font-size: 12px;
+            cursor: pointer;
+
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23c9a050' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        .fault-select:hover,
+        .fault-select:focus {
+            border-color: #c9a050;
+            outline: none;
+        }
+
+        .fault-select option {
+            background: #141418;
+            color: #e5e5e2;
+        }
+
+        .fault-result-count {
+            margin-left: auto;
+            padding-bottom: 10px;
+            color: #a7a7af;
+            font-size: 11px;
+        }
+
+        .fault-toolbar + .erp-table-wrapper {
+            border-top: 0;
+        }
+
+        @media (max-width: 600px) {
+            .fault-control,
+            .fault-select {
+                width: 100%;
+            }
+
+            .fault-result-count {
+                margin-left: 0;
+            }
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const statusFilter = document.getElementById("fault-status-filter");
+            const sortSelect = document.getElementById("fault-sort");
+            const resultCount = document.getElementById("fault-result-count");
+
+            const table = document.querySelector("#faults .erp-data-table");
+            if (!statusFilter || !sortSelect || !resultCount || !table) return;
+
+            const tbody = table.querySelector("tbody");
+            const rows = Array.from(tbody.querySelectorAll(".fault-data-row"));
+
+            const severityRank = {
+                CRITICAL: 4,
+                HIGH: 3,
+                MEDIUM: 2,
+                LOW: 1
+            };
+
+            function updateFaults() {
+                const selectedStatus = statusFilter.value;
+                const sortMode = sortSelect.value;
+
+                const visibleRows = rows.filter(row => {
+                    return selectedStatus === "ALL" ||
+                        row.dataset.status === selectedStatus;
+                });
+
+                visibleRows.sort((a, b) => {
+                    const aDetected = Number(a.dataset.detected);
+                    const bDetected = Number(b.dataset.detected);
+                    const aSeverity = severityRank[a.dataset.severity] || 0;
+                    const bSeverity = severityRank[b.dataset.severity] || 0;
+                    const aConfidence = Number(a.dataset.confidence);
+                    const bConfidence = Number(b.dataset.confidence);
+                    const aOccurrences = Number(a.dataset.occurrences);
+                    const bOccurrences = Number(b.dataset.occurrences);
+
+                    switch (sortMode) {
+                        case "OLDEST":
+                            return aDetected - bDetected;
+
+                        case "SEVERITY":
+                            return bSeverity - aSeverity || bDetected - aDetected;
+
+                        case "CONFIDENCE":
+                            return bConfidence - aConfidence || bDetected - aDetected;
+
+                        case "OCCURRENCES":
+                            return bOccurrences - aOccurrences || bDetected - aDetected;
+
+                        case "NEWEST":
+                        default:
+                            return bDetected - aDetected;
+                    }
+                });
+
+                // Append in the selected order; existing rows are moved, not duplicated.
+                visibleRows.forEach(row => tbody.appendChild(row));
+
+                // Hide rows that don't match the selected status.
+                rows.forEach(row => {
+                    row.hidden = !visibleRows.includes(row);
+                });
+
+                // Keep counts based on all loaded faults, not just visible rows.
+                const counts = {
+                    ALL: rows.length,
+                    OPEN: 0,
+                    ASSIGNED: 0,
+                    RESOLVED: 0,
+                    DISMISSED: 0
+                };
+
+                rows.forEach(row => {
+                    if (Object.prototype.hasOwnProperty.call(counts, row.dataset.status)) {
+                        counts[row.dataset.status]++;
+                    }
+                });
+
+                Array.from(statusFilter.options).forEach(option => {
+                    const count = counts[option.value];
+                    if (count !== undefined) {
+                        const labels = {
+                            ALL: "All faults",
+                            OPEN: "Open",
+                            ASSIGNED: "Assigned",
+                            RESOLVED: "Resolved",
+                            DISMISSED: "Dismissed"
+                        };
+
+                        option.textContent = `${labels[option.value]} (${count})`;
+                    }
+                });
+
+                resultCount.textContent =
+                    `Showing ${visibleRows.length} of ${rows.length} faults`;
+            }
+
+            statusFilter.addEventListener("change", updateFaults);
+            sortSelect.addEventListener("change", updateFaults);
+
+            updateFaults();
+        });
+        </script>
 </head>
 <body>
     <main class="erp-portal">
@@ -47,7 +229,7 @@
                     
                     <div class="erp-summary-grid">
                         <article class="erp-summary-card">
-                            <span class="erp-summary-label">Open Faults</span>
+                            <span class="erp-summary-label">Unresolved Faults</span>
                             <span class="erp-summary-value">{{ summary.open_faults }}</span>
                             <span class="erp-summary-note">Awaiting resolution</span>
                         </article>
@@ -72,7 +254,7 @@
                     </div>
 
 
-                    <div class="erp-panel">
+                    <!-- <div class="erp-panel">
                         <div class="erp-panel-header">Recent Work Orders</div>
                         
                     {% if recent_work_orders %}
@@ -114,19 +296,49 @@
                         </div>
                     {% endif %}
 
-                    </div>
+                    </div> -->
                 </section>
 
                 <section class="erp-section" id="faults">
-                    <div class="erp-section-heading">
+                    <!-- <div class="erp-section-heading">
                         <div>
                             <h2>Faults</h2>
                             <p>Review detected machine faults and their severity.</p>
                         </div>
                     </div>
 
+                    <div class="erp-panel-description">
+                        Review detected machine faults and their severity.
+                    </div> -->
+
                     <div class="erp-panel">
-                        <div class="erp-panel-header">Detected Faults</div>                        
+                        <div class="erp-panel-header">Detected Faults</div>  
+                            <div class="fault-toolbar">
+                                <label class="fault-control">
+                                    <span>STATUS</span>
+                                    <select id="fault-status-filter" class="fault-select">
+                                        <option value="ALL">All faults</option>
+                                        <option value="OPEN">Open</option>
+                                        <option value="ASSIGNED">Assigned</option>
+                                        <option value="RESOLVED">Resolved</option>
+                                        <option value="DISMISSED">Dismissed</option>
+                                    </select>
+                                </label>
+
+                                <label class="fault-control">
+                                    <span>SORT BY</span>
+                                    <select id="fault-sort" class="fault-select">
+                                        <option value="NEWEST">Newest first</option>
+                                        <option value="OLDEST">Oldest first</option>
+                                        <option value="SEVERITY">Severity: highest first</option>
+                                        <option value="CONFIDENCE">Confidence: highest first</option>
+                                        <option value="OCCURRENCES">Most occurrences</option>
+                                    </select>
+                                </label>
+
+                                <span id="fault-result-count" class="fault-result-count"></span>
+                            </div>
+                                                
                     {% if faults %}
                         <div class="erp-table-wrapper">
                             <table class="erp-data-table">
@@ -144,7 +356,14 @@
                                 </thead>
                                 <tbody>
                                     {% for fault in faults %}
-                                        <tr>
+                                        <tr
+                                            class="fault-data-row"
+                                            data-status="{{ fault.status }}"
+                                            data-severity="{{ fault.severity }}"
+                                            data-confidence="{{ fault.confidence if fault.confidence is not none else -1 }}"
+                                            data-occurrences="{{ fault.occurrence_count or 0 }}"
+                                            data-detected="{{ fault.detected_at.timestamp() if fault.detected_at else 0 }}"
+                                        >
                                             <td>
                                                 <strong>#{{ fault.fault_id }}</strong>
                                                 <div>
@@ -184,75 +403,193 @@
 
                     </div>
                 </section>
-
+                
                 <section class="erp-section" id="work-orders">
-                    <div class="erp-section-heading">
+                    <!-- <div class="erp-section-heading">
                         <div>
                             <h2>Work Orders</h2>
                             <p>Manage assignments, repair progress, and submitted reports.</p>
                         </div>
-                    </div>
+                    </div> -->
 
                     
-                <div class="erp-panel">
-                    <div class="erp-panel-header">Repair Work Orders</div>
+                    <div class="erp-panel">
+                        <div class="erp-panel-header">Repair Work Orders</div>
 
-                    {% if recent_work_orders %}
-                        <div class="erp-table-wrapper">
-                            <table class="erp-data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Work Order</th>
-                                        <th>Machine</th>
-                                        <th>Fault</th>
-                                        <th>Technician</th>
-                                        <th>Priority</th>
-                                        <th>Status</th>
-                                        <th>Assigned</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for order in recent_work_orders %}
+                        {% if recent_work_orders %}
+                            <div class="erp-table-wrapper">
+                                <table class="erp-data-table">
+                                    <thead>
                                         <tr>
-                                            <td>#{{ order.work_order_id }}</td>
-                                            <td>{{ order.machine_name }}</td>
-                                            <td>{{ order.fault_name }}</td>
-                                            <td>{{ order.technician_username }}</td>
-                                            <td>{{ order.priority }}</td>
-                                            <td>{{ order.status.replace('_', ' ') }}</td>
-                                            <td>
-                                                {{ order.assigned_at.strftime('%d %b %Y, %H:%M')
-                                                if order.assigned_at else '—' }}
-                                            </td>
+                                            <th>Work Order</th>
+                                            <th>Machine</th>
+                                            <th>Fault</th>
+                                            <th>Technician</th>
+                                            <th>Priority</th>
+                                            <th>Assigned</th>
+                                            <th>Status</th>
                                         </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <div class="erp-empty-state">
-                            <p>No work orders to display.</p>
-                            <span>Work orders will appear here when assignments are created.</span>
-                        </div>
-                    {% endif %}
-                </div>
+                                    </thead>
+                                    <tbody>
+                                        {% for order in recent_work_orders %}
+                                            <tr>
+                                                <td>#{{ order.work_order_id }}</td>
+                                                <td>{{ order.machine_name }}</td>
+                                                <td>{{ order.fault_name }}</td>
+                                                <td>{{ order.technician_username }}</td>
+                                                <td>{{ order.priority }}</td>
+                                                <td>
+                                                    {{ order.assigned_at.strftime('%d %b %Y, %H:%M')
+                                                    if order.assigned_at else '—' }}
+                                                </td>
+                                                <td>
+                                                    {% if order.report_id and order.status == 'SUBMITTED' %}
+                                                        <a
+                                                            class="erp-report-review-link"
+                                                            href="{{ url_for(
+                                                                'work_order_report_detail',
+                                                                work_order_id=order.work_order_id,
+                                                                report_id=order.report_id
+                                                            ) }}"
+                                                            aria-label="Review submitted report for work order {{ order.work_order_id }}"
+                                                        >
+                                                            <span class="erp-report-alert" aria-hidden="true">!</span>
+                                                            REPORT SUBMITTED
+                                                        </a>
+                                                    {% elif order.report_id and order.status == 'COMPLETED' %}
+                                                        <a
+                                                            class="erp-report-review-link erp-report-readonly-link"
+                                                            href="{{ url_for(
+                                                                'work_order_report_detail',
+                                                                work_order_id=order.work_order_id,
+                                                                report_id=order.report_id
+                                                            ) }}"
+                                                            aria-label="View approved report for work order {{ order.work_order_id }}"
+                                                        >
+                                                            COMPLETED
+                                                        </a>
+                                                    {% elif order.report_id and order.status == 'REWORK' %}
+                                                        <a
+                                                            class="erp-report-review-link"
+                                                            href="{{ url_for(
+                                                                'work_order_report_detail',
+                                                                work_order_id=order.work_order_id,
+                                                                report_id=order.report_id
+                                                            ) }}"
+                                                            aria-label="View rejected report for work order {{ order.work_order_id }}"
+                                                        >
+                                                            VIEW REJECTION
+                                                        </a>
+                                                    {% else %}
+                                                        {{ order.status.replace('_', ' ') }}
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="erp-empty-state">
+                                <p>No work orders to display.</p>
+                                <span>Work orders will appear here when assignments are created.</span>
+                            </div>
+                        {% endif %}
+                    </div>
                 </section>
 
                 <section class="erp-section" id="technicians">
-                    <div class="erp-section-heading">
+                    <!-- <div class="erp-section-heading">
                         <div>
                             <h2>Technicians</h2>
                             <p>View technician skills for repair assignment recommendations.</p>
                         </div>
-                    </div>
+                    </div> -->
 
                     <div class="erp-panel">
-                        <div class="erp-panel-header">Technician Directory</div>
-                        <div class="erp-empty-state">
-                            <p>No technician records to display.</p>
-                            <span>Technician details and recorded skills will be connected later.</span>
+                        <div class="erp-panel-header">
+                            Technician Directory
                         </div>
+
+                        {% if technicians %}
+
+                            <div class="erp-table-wrapper">
+                                <table class="erp-data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Technician</th>
+                                            <th>Skills</th>
+                                            <th>Availability</th>
+                                            <th>Workload</th>
+                                            <th>Completed</th>
+                                            <th>Profile</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for tech in technicians %}
+                                            <tr>
+                                                <td>
+                                                    <strong>
+                                                        {{ tech.username }}
+                                                    </strong>
+                                                </td>
+
+                                                <td>
+                                                    {% if tech.skills %}
+                                                        {% for skill in tech.skills %}
+                                                            <div>
+                                                                {{ skill.name }}
+                                                                <small>
+                                                                    · Level {{ skill.proficiency }}
+                                                                </small>
+                                                            </div>
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        <span>No skills recorded</span>
+                                                    {% endif %}
+                                                </td>
+
+                                                <td>
+                                                    {{ tech.availability.replace('_', ' ') }}
+                                                </td>
+
+                                                <td>
+                                                    {{ tech.active_orders }}
+                                                    /
+                                                    {{ tech.max_active_orders }}
+                                                </td>
+
+                                                <td>
+                                                    {{ tech.completed_orders }}
+                                                </td>
+
+                                                <td>
+                                                    <a href="{{ url_for(
+                                                        'technician_detail',
+                                                        technician_id=tech.technician_id
+                                                    ) }}">
+                                                        VIEW PROFILE
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        {% else %}
+
+                            <div class="erp-empty-state">
+                                <p>No technician records to display.</p>
+                                <span>
+                                    Technician records will appear here when available.
+                                </span>
+                            </div>
+
+                        {% endif %}
                     </div>
+
                 </section>
 
                 <footer class="erp-footer">

@@ -17,3 +17,5 @@ venv/
 .idea/
 .DS_Store
 Thumbs.db
+
+erp_portal/onetime_files/usernamesAndpass
