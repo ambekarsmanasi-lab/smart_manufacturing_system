@@ -33,6 +33,3 @@ generate_ot_data.py does not connect to MySQL, so it needs no password.
 - Table doesn't exist errors: re-run step 1 and 2 in order.
 - Tuning: TICK_SECONDS in live_data_simulator.py (data rate), REFRESH_MS in dashboard.html (page refresh).
 
-## Before you push to GitHub
-The DB password in backend_app.py and live_data_simulator.py is a placeholder ("password123").
-Keep it that way in the repo, and only put your real password in your local copy.
