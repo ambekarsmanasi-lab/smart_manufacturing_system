@@ -9,30 +9,26 @@
 <body>
   <header class="topbar">
     <div class="terminal-tag">OT-CONSOLE</div>
-    <div class="title-block">
-      <strong>PLANT-01 Monitoring Console</strong>
-      <small>smart_manufacturing_erp · live telemetry</small>
-    </div>
-    <div class="live-clock"><span><i></i> LIVE</span><b id="clock">--:--:--</b></div>
+    <div class="title-block"><strong>PLANT-01 Monitoring Console</strong><small>smart_manufacturing_erp :: live feed</small></div>
+    <div class="live-clock" id="liveClock"><span><i id="connectionDot"></i><b id="connectionLabel">WAITING FOR TELEMETRY</b></span><b id="clock">NO DATA RECEIVED</b></div>
   </header>
 
   <section class="summary" aria-label="Plant summary">
-    <div class="summary-cell"><strong id="avgOee">N/A</strong><small>OEE MODEL · NOT CONNECTED</small></div>
-    <div class="summary-cell"><strong id="runningCount">— / —</strong><small>MACHINES RUNNING</small></div>
-    <div class="summary-cell alarm-cell"><strong id="alarmCount">—</strong><small>ACTIVE ALARMS</small></div>
-    <div class="summary-cell"><strong id="onlineCount">— / —</strong><small>SENSORS REPORTING</small></div>
+    <div class="summary-cell"><strong id="avgOee">--.-%</strong><small>PLANT AVG OEE</small></div>
+    <div class="summary-cell"><strong id="runningCount">- / 6</strong><small>MACHINES RUNNING</small></div>
+    <div class="summary-cell"><strong id="onlineCount">0 / 13</strong><small>SENSORS REPORTING</small></div>
   </section>
 
   <main id="plant">
     <section class="line-section">
-      <div class="line-heading">LINE A <span id="lineACount">— MACHINES</span></div>
+      <div class="line-heading">LINE A :: <span id="lineACount">3 MACHINES</span></div>
       <div id="lineA" class="machine-grid"><div class="loading">AWAITING TELEMETRY...</div></div>
     </section>
     <section class="line-section">
-      <div class="line-heading">LINE B <span id="lineBCount">— MACHINES</span></div>
+      <div class="line-heading">LINE B :: <span id="lineBCount">3 MACHINES</span></div>
       <div id="lineB" class="machine-grid"><div class="loading">AWAITING TELEMETRY...</div></div>
     </section>
-    <div id="error" class="error" role="status"></div>
+    <div id="error" class="error"></div>
     <footer><span>PLANT-01 / MONITORING ONLY</span><span>REFRESH 2.5S · <span id="updated">WAITING FOR DATA</span></span></footer>
   </main>
   <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>

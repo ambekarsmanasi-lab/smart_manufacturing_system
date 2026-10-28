@@ -1,5 +1,10 @@
 const $ = (id) => document.getElementById(id);
 
+const FRESHNESS_WINDOW_MS = 10_000;
+
+let lastOnlineTimestamp = null;
+let lastTelemetryWasLive = false;
+
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({
     "&": "&amp;",
@@ -10,19 +15,26 @@ function esc(value) {
   })[char]);
 }
 
-function formatTime(value) {
-  if (!value) return "NO DATA";
+function parseTimestamp(value) {
+  if (!value) return null;
 
+  // MySQL timestamps are commonly returned as "YYYY-MM-DD HH:mm:ss".
   const date = new Date(String(value).replace(" ", "T"));
 
-  return Number.isNaN(date.getTime())
-    ? String(value)
-    : date.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: true
-      });
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatTime(value) {
+  const date = value instanceof Date ? value : parseTimestamp(value);
+
+  if (!date) return "NO DATA";
+
+  return date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true
+  });
 }
 
 function stateClass(state) {
@@ -33,7 +45,116 @@ function stateClass(state) {
     : "unknown";
 }
 
-function makeCard(machine, readings) {
+function isFresh(timestamp, now = Date.now()) {
+  const date = parseTimestamp(timestamp);
+
+  return date !== null &&
+    now - date.getTime() >= 0 &&
+    now - date.getTime() <= FRESHNESS_WINDOW_MS;
+}
+
+/*
+ * Extract useful text from a fault record.
+ * API field names can differ between versions.
+ */
+function faultText(fault) {
+  return [
+    fault.fault_code,
+    fault.fault_type,
+    fault.fault_name,
+    fault.name,
+    fault.summary,
+    fault.sensor_type
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
+/*
+ * Determine whether a sensor is associated with an active fault.
+ *
+ * Supports faults that identify:
+ * - a sensor directly, or
+ * - a machine and a fault type/category.
+ *
+ * If the API doesn't return enough information to identify the
+ * affected sensor, the function deliberately avoids guessing.
+ */
+function isSensorAnomalous(reading, faults) {
+  const sensorId = Number(reading.sensor_id);
+  const machineId = Number(reading.machine_id);
+
+  const sensorName = String(reading.sensor_type || "").toLowerCase();
+
+  return faults.some((fault) => {
+    const status = String(fault.status || "").toUpperCase();
+
+    if (!["OPEN", "ASSIGNED"].includes(status)) {
+      return false;
+    }
+
+    const faultMachineId = Number(fault.machine_id);
+
+    if (
+      Number.isFinite(machineId) &&
+      Number.isFinite(faultMachineId) &&
+      machineId !== faultMachineId
+    ) {
+      return false;
+    }
+
+    // If the fault identifies a sensor explicitly, match that sensor.
+    const directSensorId = Number(fault.sensor_id);
+
+    if (
+      Number.isFinite(sensorId) &&
+      Number.isFinite(directSensorId) &&
+      directSensorId > 0
+    ) {
+      return sensorId === directSensorId;
+    }
+
+    // Some APIs return fault evidence with sensor IDs.
+    const evidence = Array.isArray(fault.evidence)
+      ? fault.evidence
+      : Array.isArray(fault.fault_evidence)
+        ? fault.fault_evidence
+        : [];
+
+    if (evidence.length > 0) {
+      return evidence.some((item) => {
+        const evidenceSensorId = Number(item.sensor_id);
+
+        return Number.isFinite(sensorId) &&
+          Number.isFinite(evidenceSensorId) &&
+          sensorId === evidenceSensorId;
+      });
+    }
+
+    // Otherwise, try to infer the sensor from the fault category.
+    const text = faultText(fault);
+
+    const sensorKeywords = {
+      "spindle temperature": ["spindle_temp", "spindle temperature"],
+      "vibration": ["vibration"],
+      "joint temperature": ["joint temperature", "motor overheating"],
+      "barrel temperature": ["barrel temperature"],
+      "injection pressure": ["injection pressure"],
+      "motor current": ["motor current"],
+      "spindle load": ["spindle load"],
+      "belt speed": ["belt speed"],
+      "seal temperature": ["seal temperature"],
+      "throughput": ["throughput"]
+    };
+
+    const keywords = sensorKeywords[sensorName] || [];
+
+    return keywords.some((keyword) => text.includes(keyword));
+  });
+}
+
+function makeCard(machine, readings, faults) {
   const machineReadings = readings.filter(
     (reading) =>
       Number(reading.machine_id) === Number(machine.machine_id)
@@ -41,18 +162,30 @@ function makeCard(machine, readings) {
 
   const state = machine.state || "UNKNOWN";
 
-  // Display each sensor on its own full-width row.
   const sensorRows = machineReadings.map((reading) => {
     const value = reading.value == null
       ? "—"
       : Number(reading.value).toFixed(2);
 
+    const anomalous = false;
+    const freshness = isFresh(reading.recorded_at);
+
+    const classes = [
+      "sensor-chip",
+      anomalous ? "sensor-anomalous" : "",
+      freshness ? "sensor-fresh" : "sensor-stale"
+    ].filter(Boolean).join(" ");
+
     return `
-      <div class="sensor-chip">
+      <div class="${classes}"
+           data-sensor-id="${esc(reading.sensor_id)}"
+           title="${anomalous ? "Active fault associated with this sensor" : ""}">
         <span class="sensor-reading-name">
           ${esc(reading.sensor_type)}
         </span>
+
         <b>${value}${reading.unit ? ` ${esc(reading.unit)}` : ""}</b>
+
         <span class="sensor-time">
           ${esc(formatTime(reading.recorded_at))}
         </span>
@@ -83,23 +216,110 @@ function makeCard(machine, readings) {
   `;
 }
 
-function updateSummary(data, machines, readings, faults) {
-  const summary = data.summary || {};
-
+/*
+ * Keep the existing summary layout, minus Active Alarms.
+ * Only count distinct sensors with fresh readings.
+ */
+function updateSummary(machines, readings) {
   const running = machines.filter(
     (machine) => machine.state === "RUNNING"
   ).length;
 
-  const reporting = readings.filter(
-    (reading) => reading.recorded_at
-  ).length;
+  const now = Date.now();
 
-  $("avgOee").textContent = "N/A";
-  $("runningCount").textContent = `${running} / ${machines.length}`;
-  $("alarmCount").textContent = String(
-    summary.active_faults ?? faults.length
+  const freshSensorIds = new Set(
+    readings
+      .filter((reading) => isFresh(reading.recorded_at, now))
+      .map((reading) => reading.sensor_id)
+      .filter((id) => id !== undefined && id !== null)
+      .map(String)
   );
-  $("onlineCount").textContent = `${reporting} / ${readings.length}`;
+
+  const configuredSensorCount = new Set(
+    readings
+      .map((reading) => reading.sensor_id)
+      .filter((id) => id !== undefined && id !== null)
+      .map(String)
+  ).size;
+
+  if ($("avgOee")) {
+    $("avgOee").textContent = "N/A";
+  }
+
+  if ($("runningCount")) {
+    $("runningCount").textContent =
+      `${running} / ${machines.length}`;
+  }
+
+  if ($("onlineCount")) {
+    $("onlineCount").textContent =
+      `${freshSensorIds.size} / ${configuredSensorCount}`;
+  }
+}
+
+/*
+ * Update the header indicator and its time display.
+ *
+ * Expected HTML IDs:
+ *   liveStatus - LIVE / LAST ONLINE label
+ *   clock      - timestamp below the label
+ *
+ * If your HTML uses a different status ID, update liveStatus below.
+ */
+function updateLiveIndicator(readings) {
+  const now = Date.now();
+
+  const freshReadings = readings.filter((reading) => {
+    const date = parseTimestamp(reading.recorded_at);
+
+    return date &&
+      now - date.getTime() >= 0 &&
+      now - date.getTime() <= FRESHNESS_WINDOW_MS;
+  });
+
+  const live = freshReadings.length > 0;
+
+  const timestamps = readings
+    .map((reading) => parseTimestamp(reading.recorded_at))
+    .filter(Boolean);
+
+  if (timestamps.length > 0) {
+    const newest = new Date(
+      Math.max(...timestamps.map((date) => date.getTime()))
+    );
+
+    lastOnlineTimestamp = newest;
+  }
+
+  const container = $("liveClock");
+  const label = $("connectionLabel");
+  const dot = $("connectionDot");
+  const clock = $("clock");
+
+  if (container) {
+    container.classList.toggle("connection-offline", !live);
+  }
+
+  if (label) {
+    label.textContent = live ? "LIVE" : "LAST ONLINE";
+  }
+
+  if (dot) {
+    dot.classList.toggle("offline", !live);
+  }
+
+  if (clock) {
+    clock.textContent = live
+      ? new Date().toLocaleTimeString([], {
+          hour: "numeric",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true
+        })
+      : lastOnlineTimestamp
+        ? formatTime(lastOnlineTimestamp)
+        : "NO DATA RECEIVED";
+  }
 }
 
 async function refresh() {
@@ -127,38 +347,42 @@ async function refresh() {
     );
 
     $("lineA").innerHTML = lineA.length
-      ? lineA.map((machine) => makeCard(machine, readings)).join("")
+      ? lineA.map((machine) => makeCard(machine, readings, faults)).join("")
       : '<div class="empty">No machines assigned to Line A.</div>';
 
     $("lineB").innerHTML = lineB.length
-      ? lineB.map((machine) => makeCard(machine, readings)).join("")
+      ? lineB.map((machine) => makeCard(machine, readings, faults)).join("")
       : '<div class="empty">No machines assigned to Line B.</div>';
 
-    updateSummary(data, machines, readings, faults);
+    updateSummary(machines, readings);
+    updateLiveIndicator(readings);
 
-    $("lineACount").textContent = `${lineA.length} MACHINES`;
-    $("lineBCount").textContent = `${lineB.length} MACHINES`;
-    $("updated").textContent =
-      `UPDATED ${new Date().toLocaleTimeString()}`;
+    if ($("lineACount")) {
+      $("lineACount").textContent = `${lineA.length} MACHINES`;
+    }
 
-    $("error").textContent = "";
+    if ($("lineBCount")) {
+      $("lineBCount").textContent = `${lineB.length} MACHINES`;
+    }
+
+    if ($("updated")) {
+      $("updated").textContent =
+        `UPDATED ${new Date().toLocaleTimeString()}`;
+    }
+
+    if ($("error")) {
+      $("error").textContent = "";
+    }
   } catch (error) {
-    $("error").textContent =
-      `UPLINK FAILURE :: ${error.message} — check MySQL, .env, and machine_monitor/app.py`;
+    if ($("error")) {
+      $("error").textContent =
+        `UPLINK FAILURE :: ${error.message} — check MySQL, .env, and machine_monitor/app.py`;
+    }
+
+    // Do not pretend telemetry is live if the API is unreachable.
+    updateLiveIndicator([]);
   }
 }
-
-function tick() {
-  $("clock").textContent = new Date().toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true
-  });
-}
-
-tick();
-setInterval(tick, 1000);
 
 refresh();
 setInterval(refresh, 2500);

@@ -11,8 +11,7 @@ RULES = {
     "Conveyor-B": {"operating_sensor": "belt speed", "running_above": 0.1, "unit": "m/s"},
     "RobotArm-01": {"operating_sensor": "motor current", "running_above": 1.0, "unit": "A"},
     "Packaging-01": {"operating_sensor": "throughput", "running_above": 0.5, "unit": "units/min"},
-    # Injection-01 has temperature and pressure telemetry but no validated
-    # operational-state signal, so its state remains UNKNOWN by design.
+    "Injection-01": {"operating_sensor": "injection pressure", "running_above": 1.0, "unit": "bar"},
 }
 
 
