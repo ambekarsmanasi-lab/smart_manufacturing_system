@@ -1,0 +1,396 @@
+:root {
+  --bg: #090b0e;
+  --panel: #12161b;
+  --panel-header: #171d24;
+  --border: #2a333d;
+  --text: #e6ebf1;
+  --muted: #8b97a5;
+  --green: #67d391;
+  --red: #ef6a67;
+  --amber: #e0b35c;
+  --blue: #9dc7ed;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 0 24px 18px;
+  color: var(--text);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13px;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(#ffffff08 1px, transparent 1px),
+    linear-gradient(90deg, #ffffff08 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.topbar {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1px solid #242c35;
+}
+
+.terminal-tag {
+  border: 1px solid #414c59;
+  color: #aab7c6;
+  padding: 6px 9px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.title-block strong {
+  font: bold 17px Arial, sans-serif;
+  letter-spacing: .1px;
+}
+
+.title-block small {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.live-clock {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.live-clock span {
+  font-size: 10px;
+  color: var(--green);
+  letter-spacing: 1px;
+}
+
+.live-clock i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  margin-right: 6px;
+}
+
+.live-clock b {
+  font-size: 12px;
+  font-weight: normal;
+  color: #b5c0cd;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 17px 0 22px;
+  border: 1px solid var(--border);
+  background: #12161b;
+}
+
+.summary-cell {
+  min-width: 0;
+  min-height: 78px;
+  padding: 13px 18px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7px;
+}
+
+.summary-cell:last-child {
+  border-right: 0;
+}
+
+.summary-cell strong {
+  font-size: 25px;
+  line-height: 1.1;
+  color: var(--blue);
+  font-weight: normal;
+}
+
+.summary-cell small {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .55px;
+}
+
+.summary-cell.alarm-cell strong {
+  color: var(--red);
+}
+
+.line-section {
+  margin-bottom: 22px;
+  border: 1px solid var(--border);
+  background: rgba(18, 22, 27, .97);
+}
+
+.line-heading {
+  min-height: 34px;
+  padding: 10px 14px;
+  background: var(--panel-header);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  color: #c4ced9;
+  letter-spacing: 1px;
+}
+
+.line-heading span {
+  margin-left: 9px;
+  color: var(--muted);
+}
+
+.machine-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+.machine-card {
+  min-width: 0;
+  min-height: 245px;
+  padding: 18px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.machine-card:last-child {
+  border-right: 0;
+}
+
+.machine-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 24px;
+}
+
+.machine-name {
+  font: bold 15px Arial, sans-serif;
+  color: #f0f3f7;
+  overflow-wrap: anywhere;
+}
+
+.state {
+  flex-shrink: 0;
+  border: 1px solid currentColor;
+  padding: 5px 7px;
+  font-size: 10px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.state.running {
+  color: var(--green);
+}
+
+.state.idle {
+  color: var(--amber);
+}
+
+.state.down,
+.state.offline {
+  color: var(--red);
+}
+
+.state.unknown {
+  color: #9aa6b5;
+}
+
+.telemetry-title {
+  margin-top: 15px;
+  padding-top: 12px;
+  border-top: 1px dashed #303944;
+  color: #8e9aa8;
+  font-size: 10px;
+  letter-spacing: .8px;
+}
+
+/* Each machine's sensors use the same vertical, full-width layout. */
+.sensor-list {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 7px;
+  margin-top: 9px;
+  width: 100%;
+}
+
+.sensor-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  min-width: 0;
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid #303944;
+  background: #0e1216;
+  color: #b8c4d1;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.sensor-reading-name {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  color: #b8c4d1;
+}
+
+.sensor-chip b {
+  display: block;
+  color: #f0f3f7;
+  font-size: 12px;
+  font-weight: normal;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.sensor-time {
+  display: block;
+  color: #7e8a98;
+  font-size: 9px;
+  margin-top: 1px;
+}
+
+.no-sensors {
+  padding: 8px 9px;
+  border: 1px solid #303944;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.loading,
+.empty {
+  grid-column: 1 / -1;
+  padding: 28px 16px;
+  color: #8a96a4;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.error {
+  color: var(--red);
+  font-size: 11px;
+  margin: 8px 0 14px;
+  overflow-wrap: anywhere;
+}
+
+.error:empty {
+  display: none;
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #75808d;
+  font-size: 10px;
+  letter-spacing: .5px;
+  padding: 0 2px 6px;
+}
+
+footer span:last-child {
+  text-align: right;
+}
+
+@media (max-width: 900px) {
+  body {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .machine-card {
+    padding: 14px;
+  }
+
+  .machine-name {
+    font-size: 13px;
+  }
+
+  .sensor-chip {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 700px) {
+  body {
+    padding: 0 9px 12px;
+  }
+
+  .topbar {
+    min-height: 66px;
+    gap: 8px;
+  }
+
+  .terminal-tag {
+    display: none;
+  }
+
+  .title-block strong {
+    font-size: 14px;
+  }
+
+  .title-block small {
+    font-size: 9px;
+  }
+
+  .summary {
+    margin: 11px 0 15px;
+  }
+
+  .summary-cell {
+    min-height: 63px;
+    padding: 8px;
+    gap: 5px;
+  }
+
+  .summary-cell strong {
+    font-size: 18px;
+  }
+
+  .summary-cell small {
+    font-size: 7px;
+    letter-spacing: 0;
+  }
+
+  .machine-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .machine-card {
+    min-height: 0;
+    padding: 15px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .machine-card:last-child {
+    border-bottom: 0;
+  }
+
+  footer {
+    font-size: 8px;
+  }
+}

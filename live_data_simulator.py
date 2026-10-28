@@ -15,11 +15,16 @@ import time
 import random
 from datetime import datetime, timedelta
 import mysql.connector
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent / "erp_portal" / ".env")
 
 DB_CONFIG = {
-    "host": "localhost",
-    "user": "root",
-    "password": "your_password",
+    "host": os.getenv("DB_HOST", "localhost"),
+    "user": os.getenv("DB_USER", "root"),
+    "password": os.getenv("DB_PASSWORD"),
     "database": "smart_manufacturing_ot",
 }
 

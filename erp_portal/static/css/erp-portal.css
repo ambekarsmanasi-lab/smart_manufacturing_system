@@ -525,6 +525,24 @@ body.erp-login-page .erp-portal {
     white-space: nowrap;
 }
 
+/* Allow expanded work-order details to fit the available width */
+.erp-data-table td[colspan] {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.erp-data-table td[colspan] p {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.erp-data-table td[colspan] .erp-detail-block,
+.erp-data-table td[colspan] .erp-repair-workspace {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
 .erp-data-table th {
     color: var(--erp-muted);
     font-size: 11px;

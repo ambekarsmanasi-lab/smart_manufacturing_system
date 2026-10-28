@@ -13,14 +13,19 @@ Then visit: http://localhost:5000/api/oee
 from flask import Flask, jsonify
 from flask_cors import CORS
 import mysql.connector
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent / "erp_portal" / ".env")
 
 app = Flask(__name__)
 CORS(app)  # allows the frontend HTML file to fetch this API directly
 
 DB_CONFIG = {
-    "host": "localhost",
-    "user": "root",          # <-- change to your MySQL username
-    "password": "your_password",  # <-- change to your MySQL password
+    "host": os.getenv("DB_HOST", "localhost"),
+    "user": os.getenv("DB_USER", "root"),
+    "password": os.getenv("DB_PASSWORD"),
     "database": "smart_manufacturing_ot",
 }
 
@@ -168,4 +173,4 @@ def health_check():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=8080)
