@@ -1,0 +1,2428 @@
+
+/* ========================================
+   Maintenance Portal
+   ======================================== */
+
+:root {
+    --erp-bg: #08080a;
+    --erp-grid: #101013;
+    --erp-panel: #141418;
+    --erp-panel-header: #18181d;
+    --erp-border: #26262c;
+
+    --erp-steel: #8b97a3;
+    --erp-steel-dim: rgba(139, 151, 163, 0.10);
+
+    --erp-amber: #c9a050;
+    --erp-green: #6aa97a;
+    --erp-red: #c06055;
+
+    --erp-text: #e5e5e2;
+    --erp-heading: #ecece9;
+    --erp-muted: #8e8e94;
+    --erp-faint: #4a4a50;
+
+    --erp-mono: "IBM Plex Mono", "Courier New", monospace;
+    --erp-sans: "Segoe UI", system-ui, sans-serif;
+}
+
+/* Base */
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+}
+
+html {
+    background: var(--erp-bg);
+}
+
+body {
+    color: var(--erp-text);
+    font-family: var(--erp-sans);
+}
+
+.erp-portal,
+.erp-portal *,
+.erp-portal *::before,
+.erp-portal *::after {
+    box-sizing: border-box;
+}
+
+.erp-portal {
+    min-height: 100vh;
+    padding: 20px 28px 40px;
+    background:
+        linear-gradient(var(--erp-grid) 1px, transparent 1px)
+            0 0 / 100% 28px,
+        linear-gradient(90deg, var(--erp-grid) 1px, transparent 1px)
+            0 0 / 28px 100%,
+        var(--erp-bg);
+    color: var(--erp-text);
+    font-family: var(--erp-sans);
+}
+
+/* Header */
+
+.erp-portal .erp-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--erp-border);
+}
+
+.erp-portal .erp-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.erp-portal .erp-brand-mark {
+    padding: 5px 8px;
+    border: 1px solid rgba(139, 151, 163, 0.35);
+    border-radius: 2px;
+    background: var(--erp-steel-dim);
+    color: var(--erp-steel);
+    font: 12px var(--erp-mono);
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.erp-portal .erp-heading {
+    margin: 0;
+    color: var(--erp-heading);
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.erp-portal .erp-subtitle {
+    margin-top: 4px;
+    color: var(--erp-muted);
+    font: 12px var(--erp-mono);
+}
+
+.erp-portal .erp-role {
+    display: inline-block;
+    padding: 5px 8px;
+    border: 1px solid var(--erp-border);
+    color: var(--erp-steel);
+    font: 11px var(--erp-mono);
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+
+/* Dashboard content */
+
+.erp-portal .erp-content {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.erp-portal .erp-panel {
+    border: 1px solid var(--erp-border);
+    background: var(--erp-panel);
+}
+
+.erp-main-content .erp-panel-header {
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #f0c875;
+    text-transform: uppercase;
+
+    /* Yellow accent line */
+    border-left: 3px solid #c9a050;
+    padding-left: 16px;
+}
+
+.erp-portal .erp-panel-body {
+    padding: 20px;
+}
+
+.erp-portal .erp-welcome {
+    margin: 0 0 10px;
+    color: var(--erp-text);
+    font-size: 24px;
+    font-weight: 500;
+}
+
+.erp-portal .erp-description {
+    margin: 0;
+    color: var(--erp-muted);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* Status */
+
+.erp-portal .erp-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--erp-green);
+    font: 11px var(--erp-mono);
+    text-transform: uppercase;
+}
+
+.erp-portal .erp-status::before {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    content: "";
+}
+
+/* Buttons */
+
+.erp-portal .erp-button,
+.erp-portal .erp-login button {
+    padding: 10px 14px;
+    border: 1px solid rgba(139, 151, 163, 0.35);
+    border-radius: 2px;
+    background: var(--erp-steel-dim);
+    color: var(--erp-text);
+    font: 12px var(--erp-mono);
+    cursor: pointer;
+}
+
+.erp-portal .erp-button:hover,
+.erp-portal .erp-login button:hover {
+    border-color: var(--erp-steel);
+    background: rgba(139, 151, 163, 0.18);
+}
+
+/* Messages */
+
+.erp-portal .erp-message {
+    margin: 0 0 16px;
+    color: var(--erp-red);
+    font-size: 12px;
+}
+
+/* Login */
+
+.erp-portal .erp-login {
+    width: 100%;
+    max-width: 400px;
+    margin: 0;
+    padding: 28px;
+    border: 1px solid var(--erp-border);
+    border-radius: 2px;
+    background: var(--erp-panel);
+}
+
+.erp-portal .erp-login h1 {
+    margin: 0 0 8px;
+    color: var(--erp-text);
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+.erp-portal .erp-login .erp-subtitle {
+    margin-bottom: 28px;
+}
+
+.erp-portal .erp-login label {
+    display: block;
+    margin: 18px 0 8px;
+    color: var(--erp-muted);
+    font: 11px var(--erp-mono);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.erp-portal .erp-login input {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--erp-border);
+    border-radius: 2px;
+    outline: none;
+    background: var(--erp-bg);
+    color: var(--erp-text);
+    font: 13px var(--erp-mono);
+}
+
+.erp-portal .erp-login input:focus {
+    border-color: var(--erp-steel);
+}
+
+.erp-portal .erp-login button {
+    width: 100%;
+    margin-top: 24px;
+    padding: 12px;
+    letter-spacing: 0.5px;
+}
+
+.erp-portal .erp-login form {
+    margin-bottom: 0;
+}
+
+/* Login page layout
+   Add erp-login-page to the body's class list. */
+
+body.erp-login-page {
+    min-height: 100vh;
+}
+
+body.erp-login-page .erp-portal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 24px;
+}
+
+/* Responsive */
+
+@media (max-width: 600px) {
+    .erp-portal {
+        padding: 16px;
+    }
+
+    .erp-portal .erp-topbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .erp-portal .erp-panel-body {
+        padding: 16px;
+    }
+
+    body.erp-login-page .erp-portal {
+        padding: 16px;
+    }
+
+    .erp-portal .erp-login {
+        padding: 22px;
+    }
+}
+
+
+/* Maintenance Head workspace */
+
+.erp-portal .erp-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.erp-portal .erp-header-actions form {
+    margin: 0;
+}
+
+.erp-portal .erp-layout {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr);
+    gap: 28px;
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+.erp-portal .erp-sidebar {
+    position: sticky;
+    top: 20px;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 0;
+    border-right: 1px solid var(--erp-border);
+}
+
+.erp-portal .erp-nav-label {
+    padding: 8px 14px 12px;
+    color: var(--erp-faint);
+    font: 10px var(--erp-mono);
+    letter-spacing: 1px;
+}
+
+.erp-portal .erp-nav-link {
+    display: block;
+    margin-right: 12px;
+    padding: 11px 14px;
+    border-left: 2px solid transparent;
+    color: var(--erp-muted);
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.erp-portal .erp-nav-link:hover,
+.erp-portal .erp-nav-link.active {
+    border-left-color: var(--erp-steel);
+    background: var(--erp-steel-dim);
+    color: var(--erp-text);
+}
+
+.erp-portal .erp-main-content {
+    min-width: 0;
+}
+
+.erp-portal .erp-section {
+    margin-bottom: 44px;
+    scroll-margin-top: 20px;
+}
+
+.erp-portal .erp-section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.erp-portal .erp-section-heading h2 {
+    margin: 0;
+    color: var(--erp-heading);
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.erp-portal .erp-section-heading p {
+    margin: 6px 0 0;
+    color: var(--erp-muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.erp-portal .erp-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.erp-portal .erp-summary-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid var(--erp-border);
+    background: var(--erp-panel);
+}
+
+.erp-portal .erp-summary-label {
+    color: var(--erp-muted);
+    font: 12px var(--erp-mono);
+    line-height: 1.5;
+}
+
+.erp-portal .erp-summary-value {
+    color: var(--erp-text);
+    font: 26px var(--erp-mono);
+}
+
+.erp-portal .erp-summary-note {
+    color: var(--erp-faint);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.erp-portal .erp-empty-state {
+    padding: 28px 20px;
+    text-align: center;
+}
+
+.erp-portal .erp-empty-state p {
+    margin: 0 0 8px;
+    color: var(--erp-text);
+    font-size: 13px;
+}
+
+.erp-portal .erp-empty-state span {
+    color: var(--erp-muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.erp-portal .erp-footer {
+    padding: 18px 0;
+    border-top: 1px solid var(--erp-border);
+    color: var(--erp-faint);
+    font: 10px var(--erp-mono);
+}
+
+/* Responsive layout */
+
+@media (max-width: 1000px) {
+    .erp-portal .erp-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .erp-portal .erp-layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+    }
+
+    .erp-portal .erp-sidebar {
+        position: static;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 4px;
+        border-right: 0;
+        border-bottom: 1px solid var(--erp-border);
+        padding: 0 0 12px;
+    }
+
+    .erp-portal .erp-nav-label {
+        width: 100%;
+    }
+
+    .erp-portal .erp-nav-link {
+        margin: 0;
+        border-left: 0;
+        border-bottom: 2px solid transparent;
+        padding: 9px 10px;
+    }
+
+    .erp-portal .erp-nav-link:hover,
+    .erp-portal .erp-nav-link.active {
+        border-bottom-color: var(--erp-steel);
+    }
+
+    .erp-portal .erp-header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 420px) {
+    .erp-portal .erp-summary-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+
+.erp-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.erp-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+}
+
+.erp-data-table th,
+.erp-data-table td {
+    padding: 13px 15px;
+    border-bottom: 1px solid var(--erp-border);
+    white-space: nowrap;
+}
+
+/* Allow expanded work-order details to fit the available width */
+.erp-data-table td[colspan] {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.erp-data-table td[colspan] p {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.erp-data-table td[colspan] .erp-detail-block,
+.erp-data-table td[colspan] .erp-repair-workspace {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.erp-data-table th {
+    color: var(--erp-muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.erp-data-table td {
+    color: var(--erp-text);
+}
+
+.erp-data-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.erp-data-table small {
+    display: block;
+    margin-top: 4px;
+    color: var(--erp-muted);
+}
+
+.erp-data-table td div {
+    margin-top: 4px;
+}
+
+
+.erp-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.erp-detail-grid p,
+.erp-detail-block p {
+    margin: 8px 0 0;
+    color: var(--erp-text);
+    overflow-wrap: anywhere;
+}
+
+.erp-detail-block {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--erp-border);
+}
+
+.erp-fault-link {
+    color: var(--erp-text);
+    text-decoration: none;
+}
+
+.erp-fault-link:hover {
+    color: var(--erp-amber);
+}
+
+.erp-fault-link div {
+    margin-top: 5px;
+}
+
+@media (max-width: 800px) {
+    .erp-detail-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .erp-detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* Fault details: consistent typography hierarchy */
+.erp-fault-detail-page {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--erp-text);
+}
+
+.erp-fault-detail-page h2 {
+    margin: 0;
+    font-family: inherit;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+}
+
+.erp-fault-detail-page .erp-subtitle {
+    font-family: inherit;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.erp-fault-detail-page .erp-section-heading > div > p {
+    margin: 6px 0 0;
+    color: var(--erp-muted);
+    font-size: 13px;
+}
+
+.erp-fault-detail-page .erp-panel-header {
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.erp-fault-detail-page .erp-summary-label {
+    display: block;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.03em;
+    color: var(--erp-muted);
+}
+
+.erp-fault-detail-page .erp-detail-grid p,
+.erp-fault-detail-page .erp-detail-block p {
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.erp-fault-detail-page .erp-detail-block p {
+    font-weight: 400;
+}
+
+.erp-fault-detail-page .erp-role {
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.erp-fault-detail-page a {
+    color: var(--erp-amber);
+    text-decoration: none;
+}
+
+.erp-fault-detail-page a:hover {
+    text-decoration: underline;
+}
+
+.erp-fault-detail-page .erp-button {
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Fault detail link — high contrast on dark background */
+#faults .erp-data-table a,
+#faults .erp-data-table a:visited {
+    color: #e8c477;
+    text-decoration: none;
+}
+
+#faults .erp-data-table a:hover {
+    color: #ffe2a0;
+    text-decoration: underline;
+}
+
+#faults .erp-data-table a:focus-visible {
+    outline: 2px solid #e8c477;
+    outline-offset: 3px;
+}
+
+
+/* =========================================
+   TYPOGRAPHY SYSTEM — MAINTENANCE PORTAL
+   ========================================= */
+
+.erp-portal {
+    --font-primary: #e8e9ed;
+    --font-secondary: #b0b5c0;
+    --font-muted: #9299a6;
+    --font-accent: #e8c477;
+
+    --font-xs: 12px;
+    --font-sm: 13px;
+    --font-base: 14px;
+    --font-lg: 16px;
+    --font-xl: 20px;
+    --font-title: 28px;
+
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: var(--font-base);
+    line-height: 1.55;
+    color: var(--font-primary);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Page identity */
+.erp-heading {
+    font-size: 22px;
+    font-weight: 650;
+    line-height: 1.25;
+    letter-spacing: -0.4px;
+    color: var(--font-primary);
+}
+
+.erp-subtitle {
+    margin-top: 4px;
+    font-size: var(--font-sm);
+    line-height: 1.5;
+    color: var(--font-secondary);
+}
+
+/* Main section headings */
+.erp-section-heading h2 {
+    margin: 0;
+    font-size: var(--font-xl);
+    font-weight: 650;
+    line-height: 1.35;
+    letter-spacing: -0.3px;
+    color: var(--font-primary);
+}
+
+.erp-section-heading p {
+    margin-top: 6px;
+    font-size: var(--font-base);
+    line-height: 1.6;
+    color: var(--font-secondary);
+}
+
+/* Panel titles */
+.erp-panel-header {
+    font-size: var(--font-xs);
+    font-weight: 650;
+    line-height: 1.5;
+    letter-spacing: 0.7px;
+    color: #b9c0cc;
+}
+
+/* Summary cards */
+.erp-summary-label {
+    font-size: var(--font-sm);
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--font-secondary);
+}
+
+.erp-summary-value {
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.7px;
+    font-variant-numeric: tabular-nums;
+    color: #f1f2f5;
+}
+
+.erp-summary-note {
+    font-size: var(--font-xs);
+    line-height: 1.5;
+    color: var(--font-muted);
+}
+
+/* Data tables */
+.erp-data-table {
+    font-size: var(--font-base);
+    line-height: 1.5;
+    color: var(--font-primary);
+}
+
+.erp-data-table th {
+    font-size: var(--font-xs);
+    font-weight: 600;
+    line-height: 1.45;
+    letter-spacing: 0.35px;
+    color: var(--font-secondary);
+}
+
+.erp-data-table td {
+    font-size: var(--font-base);
+    font-weight: 450;
+    line-height: 1.55;
+    color: var(--font-primary);
+}
+
+.erp-data-table td strong {
+    font-weight: 650;
+    color: #f1f2f5;
+}
+
+.erp-data-table small {
+    font-size: var(--font-xs);
+    line-height: 1.5;
+    color: var(--font-muted);
+}
+
+/* Form controls and buttons */
+.erp-button,
+.erp-role {
+    font-family: inherit;
+    font-size: var(--font-sm);
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.erp-button {
+    letter-spacing: 0.1px;
+}
+
+/* Fault detail labels and supporting content */
+.erp-detail-grid p,
+.erp-detail-block p {
+    font-size: var(--font-base);
+    line-height: 1.65;
+    color: var(--font-primary);
+}
+
+.erp-detail-block .erp-summary-label {
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+/* Navigation */
+.erp-nav-link {
+    font-size: var(--font-sm);
+    line-height: 1.5;
+}
+
+.erp-nav-label {
+    font-size: 10px;
+    font-weight: 650;
+    letter-spacing: 1px;
+    color: var(--font-muted);
+}
+
+/* Recommendation emphasis */
+.erp-recommendation-label {
+    font-size: var(--font-xs);
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--font-accent);
+}
+
+/* Keyboard accessibility */
+.erp-button:focus-visible,
+.erp-nav-link:focus-visible,
+.erp-data-table a:focus-visible {
+    outline: 2px solid var(--font-accent);
+    outline-offset: 3px;
+}
+
+
+/* Stronger hierarchy for work-order detail labels */
+
+.erp-portal .erp-detail-block .erp-summary-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: 0.35px;
+    color: #e8c477;
+}
+
+/* Instructions label */
+.erp-portal .erp-data-table td > strong {
+    color: #e8c477;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* Supporting content below each label */
+.erp-portal .erp-detail-block p {
+    margin-top: 0;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #e8e9ed;
+}
+
+
+/* Detail labels use the normal UI font, not the display font */
+.erp-portal .erp-detail-block .erp-summary-label {
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 650;
+    letter-spacing: 0;
+    color: #e8c477;
+    text-transform: none;
+}
+
+/* Keep detail content in the normal body font */
+.erp-portal .erp-detail-block p {
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #e8e9ed;
+}
+
+/* =========================================
+   Technician work-order cards
+   ========================================= */
+
+.erp-portal .erp-work-order-list {
+    display: grid;
+    gap: 22px;
+    padding: 20px;
+}
+
+.erp-portal .erp-work-order-card {
+    min-width: 0;
+    overflow: hidden;
+    background: #141418;
+    border: 1px solid #303037;
+    border-radius: 4px;
+}
+
+.erp-portal .erp-work-order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    padding: 22px;
+    border-bottom: 1px solid #303037;
+}
+
+.erp-portal .erp-work-order-header h3 {
+    margin: 8px 0;
+    font-family: inherit;
+    font-size: 25px;
+    font-weight: 600;
+    color: #e5e5e2;
+}
+
+.erp-portal .erp-work-order-machine {
+    margin: 0 0 5px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #e8c477;
+}
+
+.erp-portal .erp-muted {
+    color: #8e8e94;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.erp-portal .erp-work-order-badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.erp-portal .erp-status-badge,
+.erp-portal .erp-priority-badge {
+    display: inline-block;
+    padding: 7px 10px;
+    border: 1px solid #414149;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 650;
+    letter-spacing: 0.5px;
+    color: #e5e5e2;
+}
+
+.erp-portal .erp-priority-badge {
+    color: #e8c477;
+    border-color: #69552f;
+}
+
+.erp-portal .erp-status-active {
+    color: #8fd0a0;
+    border-color: #386747;
+}
+
+.erp-portal .erp-status-paused {
+    color: #e8c477;
+    border-color: #69552f;
+}
+
+.erp-portal .erp-work-order-metadata {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.5fr 1.5fr;
+    gap: 20px;
+    padding: 20px 22px;
+    border-bottom: 1px solid #303037;
+}
+
+.erp-portal .erp-work-order-metadata > div {
+    min-width: 0;
+}
+
+.erp-portal .erp-work-order-metadata p {
+    margin: 8px 0 4px;
+    font-size: 13px;
+    color: #e5e5e2;
+    overflow-wrap: anywhere;
+}
+
+.erp-portal .erp-work-order-metadata small {
+    color: #8e8e94;
+    font-size: 11px;
+    overflow-wrap: anywhere;
+}
+
+.erp-portal .erp-work-order-section {
+    padding: 22px;
+    border-bottom: 1px solid #303037;
+}
+
+.erp-portal .erp-work-order-section:last-child {
+    border-bottom: none;
+}
+
+.erp-portal .erp-work-order-section h4 {
+    margin: 0 0 18px;
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 1px;
+    color: #e8c477;
+}
+
+.erp-portal .erp-work-order-section .erp-detail-block {
+    margin-top: 14px;
+}
+
+.erp-portal .erp-work-order-section .erp-detail-block p {
+    margin: 7px 0 0;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #e5e5e2;
+    overflow-wrap: anywhere;
+}
+
+.erp-portal .erp-repair-workspace {
+    background: #101014;
+}
+
+.erp-portal .erp-repair-workspace-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.erp-portal .erp-repair-workspace-header h4 {
+    margin-bottom: 6px;
+}
+
+.erp-portal .erp-repair-workspace-header p {
+    margin: 0;
+}
+
+.erp-portal .erp-work-order-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.erp-portal .erp-work-order-actions label {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 12px;
+    color: #c8c8ce;
+}
+
+.erp-portal .erp-work-order-actions input {
+    box-sizing: border-box;
+    width: min(100%, 360px);
+    min-height: 38px;
+    padding: 9px 11px;
+    color: #e5e5e2;
+    background: #08080a;
+    border: 1px solid #414149;
+    border-radius: 3px;
+    font: inherit;
+}
+
+.erp-portal .erp-work-order-actions input:focus {
+    outline: 1px solid #c9a050;
+    border-color: #c9a050;
+}
+
+.erp-portal .erp-work-order-actions button {
+    min-height: 38px;
+    padding: 10px 16px;
+    border: 1px solid #a78340;
+    border-radius: 3px;
+    background: #c9a050;
+    color: #111114;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.erp-portal .erp-work-order-actions button:hover {
+    background: #dbb66b;
+}
+
+@media (max-width: 760px) {
+    .erp-portal .erp-work-order-header {
+        flex-direction: column;
+    }
+
+    .erp-portal .erp-work-order-badges {
+        justify-content: flex-start;
+    }
+
+    .erp-portal .erp-work-order-metadata {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px 14px;
+    }
+
+    .erp-portal .erp-work-order-list {
+        padding: 12px;
+    }
+
+    .erp-portal .erp-work-order-header,
+    .erp-portal .erp-work-order-section,
+    .erp-portal .erp-work-order-metadata {
+        padding: 16px;
+    }
+
+    .erp-portal .erp-repair-workspace-header {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 420px) {
+    .erp-portal .erp-work-order-metadata {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .erp-portal .erp-work-order-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .erp-portal .erp-work-order-actions button,
+    .erp-portal .erp-work-order-actions input {
+        width: 100%;
+    }
+}
+
+.erp-portal .erp-repair-workspace {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid #303037;
+}
+
+.erp-portal .erp-repair-workspace-header {
+    margin-bottom: 12px;
+}
+
+.erp-portal .erp-repair-workspace .erp-summary-label {
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.5px;
+    color: #e8c578;
+}
+
+/* Repair workspace: theme-matched controls */
+
+.erp-portal .erp-repair-workspace button {
+    min-height: 36px;
+    padding: 9px 16px;
+    background: #e8c578;
+    color: #111114;
+    border: 1px solid #e8c578;
+    border-radius: 2px;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.erp-portal .erp-repair-workspace button:hover {
+    background: #dbb66b;
+    border-color: #dbb66b;
+}
+
+.erp-portal .erp-repair-workspace button:focus-visible {
+    outline: 2px solid #e8c477;
+    outline-offset: 3px;
+}
+
+/* Pause reason input */
+.erp-portal .erp-repair-workspace input[type="text"] {
+    box-sizing: border-box;
+    width: 300px;
+    max-width: 100%;
+    min-height: 36px;
+    padding: 9px 11px;
+    background: #08080a;
+    color: #e5e5e2;
+    border: 1px solid #414149;
+    border-radius: 2px;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 13px;
+}
+
+.erp-portal .erp-repair-workspace input[type="text"]::placeholder {
+    color: #777780;
+    opacity: 1;
+}
+
+.erp-portal .erp-repair-workspace input[type="text"]:focus {
+    outline: none;
+    border-color: #c9a050;
+    box-shadow: 0 0 0 1px #c9a050;
+}
+
+/* Pause reason label */
+.erp-portal .erp-repair-workspace label {
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 12px;
+    color: #c8c8ce;
+}
+
+/* Keep controls aligned */
+.erp-portal .erp-repair-workspace form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+@media (max-width: 480px) {
+    .erp-portal .erp-repair-workspace input[type="text"] {
+        width: 100%;
+    }
+}
+
+/* Repair report form layout */
+.erp-portal form.erp-repair-report-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #303037;
+}
+
+/* Keep each field inside its grid cell */
+.erp-portal form.erp-repair-report-form > .erp-detail-block {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+/* Consistent field sizing */
+.erp-portal form.erp-repair-report-form textarea,
+.erp-portal form.erp-repair-report-form input[type="text"],
+.erp-portal form.erp-repair-report-form input[type="number"] {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    margin-top: 8px;
+    padding: 10px 12px;
+    background: #08080a;
+    color: #e5e5e2;
+    border: 1px solid #414149;
+    border-radius: 2px;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.erp-portal form.erp-repair-report-form textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.erp-portal form.erp-repair-report-form textarea::placeholder,
+.erp-portal form.erp-repair-report-form input::placeholder {
+    color: #777780;
+    opacity: 1;
+}
+
+/* Amber focus state */
+.erp-portal form.erp-repair-report-form textarea:focus,
+.erp-portal form.erp-repair-report-form input:focus {
+    outline: none;
+    border-color: #c9a050;
+    box-shadow: 0 0 0 1px #c9a050;
+}
+
+/* Submit button always occupies a full grid row */
+.erp-portal form.erp-repair-report-form > button[type="submit"] {
+    grid-column: 1 / -1;
+    justify-self: start;
+    align-self: start;
+    margin: 0;
+}
+
+/* Stack fields on narrow screens */
+@media (max-width: 650px) {
+    .erp-portal form.erp-repair-report-form {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .erp-portal form.erp-repair-report-form > button[type="submit"] {
+        grid-column: 1;
+    }
+}
+
+/* Pending repair report indicator */
+.erp-report-review-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #e2bd65;
+    font-weight: 600;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.erp-report-review-link:hover {
+    color: #ffe09a;
+}
+
+.erp-report-alert {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-size: 11px;
+    line-height: 1;
+    animation: report-alert-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes report-alert-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.35;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .erp-report-alert {
+        animation: none;
+    }
+}
+
+/* =========================================
+   Repair Report Detail — Visual Hierarchy
+   ========================================= */
+
+/* Main section titles */
+.erp-fault-detail-page .erp-section-heading h2 {
+    font-size: 1.35rem;
+    font-weight: 650;
+    letter-spacing: -0.025em;
+    color: #f1f1ef;
+    margin-bottom: 6px;
+}
+
+/* Panels become clearly defined sections */
+.erp-fault-detail-page .erp-panel {
+    margin-top: 44px;
+    border: 1px solid #303037;
+    border-radius: 5px;
+    overflow: hidden;
+    background: #111114;
+}
+
+/* Make section headers much more visible */
+.erp-fault-detail-page .erp-panel-header {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 18px;
+    background: #1b1b21;
+    border-bottom: 1px solid #35353e;
+    border-left: 3px solid #c9a050;
+
+    color: #f0d18b;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+}
+
+/* Give panel content room to breathe */
+.erp-fault-detail-page .erp-panel-body {
+    padding: 22px;
+}
+
+/* Improve separation between detail fields */
+.erp-fault-detail-page .erp-detail-grid {
+    column-gap: 32px;
+    row-gap: 24px;
+}
+
+/* Make field labels easier to identify */
+.erp-fault-detail-page .erp-detail-grid .erp-summary-label,
+.erp-fault-detail-page .erp-detail-block .erp-summary-label {
+    display: block;
+    margin-bottom: 8px;
+
+    color: #a5a5ae;
+    font-size: 0.7rem;
+    font-weight: 650;
+    letter-spacing: 0.07em;
+    line-height: 1.5;
+}
+
+/* Improve readability of field values */
+.erp-fault-detail-page .erp-detail-grid p,
+.erp-fault-detail-page .erp-detail-block p {
+    color: #e6e6e8;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+/* Distinguish fault summary and instructions from metadata */
+.erp-fault-detail-page .erp-detail-block {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid #303037;
+}
+
+/* Keep the report status badge visible */
+.erp-fault-detail-page .erp-section-heading .erp-role {
+    color: #e2bd65;
+    border-color: #65512b;
+    background: #211c12;
+    padding: 7px 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+/* Review decision text */
+.erp-fault-detail-page .erp-panel-body > p {
+    color: #c7c7cd;
+    font-size: 0.88rem;
+    line-height: 1.8;
+    margin-bottom: 14px;
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .erp-fault-detail-page * {
+        scroll-behavior: auto;
+    }
+}
+
+/* ==========================================
+   MAINTENANCE HEAD DASHBOARD — VISUAL REFINEMENT
+   Scoped to the main dashboard only.
+   ========================================== */
+
+body:not(.erp-fault-detail-page) .erp-portal {
+    padding: 28px 32px 48px;
+}
+
+/* Main dashboard content */
+body:not(.erp-fault-detail-page) .erp-main-content {
+    min-width: 0;
+}
+
+/* Give each major section a clearer identity */
+body:not(.erp-fault-detail-page) .erp-main-content > .erp-section {
+    margin-bottom: 36px;
+}
+
+/* Section headings */
+body:not(.erp-fault-detail-page) .erp-main-content > .erp-section > .erp-section-heading {
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #303037;
+}
+
+body:not(.erp-fault-detail-page) .erp-main-content > .erp-section > .erp-section-heading h2 {
+    margin: 0;
+    color: #f0f0ed;
+    font-size: 1.35rem;
+    font-weight: 650;
+    letter-spacing: -0.025em;
+}
+
+body:not(.erp-fault-detail-page) .erp-main-content > .erp-section > .erp-section-heading p {
+    margin-top: 7px;
+    color: #a0a0a8;
+    font-size: 0.82rem;
+    line-height: 1.6;
+}
+
+/* Overview summary cards */
+body:not(.erp-fault-detail-page) .erp-summary-grid {
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+body:not(.erp-fault-detail-page) .erp-summary-card {
+    position: relative;
+    min-height: 118px;
+    padding: 20px;
+    border: 1px solid #303037;
+    border-top: 2px solid #5a5140;
+    border-radius: 4px;
+    background: linear-gradient(145deg, #19191e, #111114);
+    transition: border-color 160ms ease, background 160ms ease;
+}
+
+body:not(.erp-fault-detail-page) .erp-summary-card:hover {
+    border-top-color: #c9a050;
+    background: linear-gradient(145deg, #1e1e23, #141418);
+}
+
+body:not(.erp-fault-detail-page) .erp-summary-label {
+    color: #b4b4bc;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.045em;
+    line-height: 1.5;
+    text-transform: uppercase;
+}
+
+body:not(.erp-fault-detail-page) .erp-summary-value {
+    display: block;
+    margin-top: 12px;
+    color: #f2f0e9;
+    font-size: 1.8rem;
+    font-weight: 650;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+body:not(.erp-fault-detail-page) .erp-summary-note {
+    display: block;
+    margin-top: 10px;
+    color: #909099;
+    font-size: 0.73rem;
+    line-height: 1.5;
+}
+
+/* Panels containing tables or dashboard content */
+body:not(.erp-fault-detail-page) .erp-main-content > .erp-section .erp-panel {
+    overflow: hidden;
+    border: 1px solid #303037;
+    border-radius: 4px;
+    background: #111114;
+}
+
+body:not(.erp-fault-detail-page) .erp-main-content > .erp-section .erp-panel-header {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #303037;
+    background: #1a1a20;
+    color: #d9c28f;
+    font-size: 0.72rem;
+    font-weight: 650;
+    letter-spacing: 0.065em;
+    line-height: 1.5;
+    text-transform: uppercase;
+}
+
+/* Dashboard tables: improve readability without changing their layout */
+body:not(.erp-fault-detail-page) .erp-main-content .erp-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+body:not(.erp-fault-detail-page) .erp-main-content table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+body:not(.erp-fault-detail-page) .erp-main-content table thead th {
+    padding: 13px 14px;
+    background: #151519;
+    border-bottom: 1px solid #35353d;
+    color: #aeb6c0;
+    font-size: 0.68rem;
+    font-weight: 650;
+    letter-spacing: 0.045em;
+    line-height: 1.5;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+body:not(.erp-fault-detail-page) .erp-main-content table tbody td {
+    padding: 14px;
+    border-bottom: 1px solid #29292f;
+    color: #dedee2;
+    font-size: 0.78rem;
+    line-height: 1.65;
+    vertical-align: middle;
+}
+
+body:not(.erp-fault-detail-page) .erp-main-content table tbody tr {
+    transition: background 140ms ease;
+}
+
+body:not(.erp-fault-detail-page) .erp-main-content table tbody tr:hover {
+    background: #1a1a20;
+}
+
+body:not(.erp-fault-detail-page) .erp-main-content table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Empty states should feel intentional, not like missing content */
+body:not(.erp-fault-detail-page) .erp-main-content .erp-empty-state {
+    padding: 30px 22px;
+    text-align: center;
+}
+
+body:not(.erp-fault-detail-page) .erp-main-content .erp-empty-state p {
+    margin: 0 0 8px;
+    color: #d9d9de;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+body:not(.erp-fault-detail-page) .erp-main-content .erp-empty-state span {
+    color: #92929b;
+    font-size: 0.78rem;
+    line-height: 1.6;
+}
+
+/* Sidebar navigation */
+body:not(.erp-fault-detail-page) .erp-sidebar {
+    padding-right: 14px;
+}
+
+body:not(.erp-fault-detail-page) .erp-nav-label {
+    margin-bottom: 12px;
+    color: #909099;
+    font-size: 0.66rem;
+    font-weight: 650;
+    letter-spacing: 0.12em;
+}
+
+body:not(.erp-fault-detail-page) .erp-nav-link {
+    margin-bottom: 4px;
+    padding: 11px 13px;
+    border-left: 2px solid transparent;
+    border-radius: 0 3px 3px 0;
+    color: #a8a8b0;
+    font-size: 0.8rem;
+    transition: background 140ms ease, color 140ms ease;
+}
+
+body:not(.erp-fault-detail-page) .erp-nav-link:hover {
+    background: #17171c;
+    color: #ededee;
+}
+
+body:not(.erp-fault-detail-page) .erp-nav-link.active {
+    border-left-color: #c9a050;
+    background: #1b1b20;
+    color: #f0d18b;
+}
+
+/* Footer */
+body:not(.erp-fault-detail-page) .erp-footer {
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid #29292f;
+    color: #777780;
+    font-size: 0.72rem;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    body:not(.erp-fault-detail-page) .erp-summary-card,
+    body:not(.erp-fault-detail-page) .erp-nav-link,
+    body:not(.erp-fault-detail-page) .erp-main-content table tbody tr {
+        transition: none;
+    }
+}
+
+/* Smaller screens */
+@media (max-width: 768px) {
+    body:not(.erp-fault-detail-page) .erp-portal {
+        padding: 18px 14px 32px;
+    }
+
+    body:not(.erp-fault-detail-page) .erp-main-content > .erp-section {
+        margin-bottom: 28px;
+    }
+
+    body:not(.erp-fault-detail-page) .erp-summary-card {
+        min-height: 100px;
+        padding: 15px;
+    }
+
+    body:not(.erp-fault-detail-page) .erp-main-content table tbody td {
+        padding: 11px;
+    }
+}
+
+/* ==========================================
+   MAINTENANCE HEAD — COMPACT DESKTOP LAYOUT
+   Preserve the existing theme; reduce density.
+   ========================================== */
+
+body:not(.erp-fault-detail-page) .erp-portal {
+    padding: 20px 22px 32px;
+    box-sizing: border-box;
+}
+
+body:not(.erp-fault-detail-page) .erp-main-content {
+    min-width: 0;
+    font-size: 13px;
+}
+
+/* Section headings */
+body:not(.erp-fault-detail-page)
+.erp-main-content > .erp-section > .erp-section-heading {
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+}
+
+body:not(.erp-fault-detail-page)
+.erp-main-content > .erp-section > .erp-section-heading h2 {
+    font-size: 24px;
+    line-height: 1.3;
+}
+
+body:not(.erp-fault-detail-page)
+.erp-main-content > .erp-section > .erp-section-heading p {
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+body:not(.erp-fault-detail-page)
+.erp-main-content > .erp-section {
+    margin-bottom: 26px;
+}
+
+/* Overview cards */
+body:not(.erp-fault-detail-page) .erp-summary-grid {
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+body:not(.erp-fault-detail-page) .erp-summary-card {
+    min-height: 96px;
+    padding: 15px;
+}
+
+body:not(.erp-fault-detail-page) .erp-summary-label {
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+body:not(.erp-fault-detail-page) .erp-summary-value {
+    margin-top: 9px;
+    font-size: 29px;
+    line-height: 1.1;
+}
+
+body:not(.erp-fault-detail-page) .erp-summary-note {
+    margin-top: 7px;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+/* Table panel headings */
+body:not(.erp-fault-detail-page)
+.erp-main-content .erp-panel-header {
+    min-height: 36px;
+    padding: 9px 13px;
+    font-size: 11px;
+}
+
+/* Table column headings */
+body:not(.erp-fault-detail-page)
+.erp-main-content table thead th {
+    padding: 10px 11px;
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+/* Table content */
+body:not(.erp-fault-detail-page)
+.erp-main-content table tbody td {
+    padding: 10px 11px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* Status indicators */
+body:not(.erp-fault-detail-page) .erp-report-review-link {
+    font-size: 11px;
+    gap: 5px;
+}
+
+body:not(.erp-fault-detail-page) .erp-report-alert {
+    width: 14px;
+    height: 14px;
+    font-size: 10px;
+}
+
+/* Keep section panels visually distinct */
+body:not(.erp-fault-detail-page)
+.erp-main-content > .erp-section .erp-panel {
+    border-radius: 3px;
+}
+
+/* Fit the dashboard to smaller screens without enlarging desktop text */
+@media (max-width: 768px) {
+    body:not(.erp-fault-detail-page) .erp-portal {
+        padding: 16px 12px 24px;
+    }
+
+    body:not(.erp-fault-detail-page)
+    .erp-main-content > .erp-section > .erp-section-heading h2 {
+        font-size: 21px;
+    }
+}
+
+/* ==========================================
+   FAULT DETAILS + REPAIR REPORT REVIEW
+   Compact layout for 100% browser zoom
+   ========================================== */
+
+/* Main page headings */
+.erp-fault-detail-page .erp-section-heading h1,
+.erp-fault-detail-page .erp-section-heading h2 {
+    font-size: 24px;
+    line-height: 1.3;
+}
+
+.erp-fault-detail-page .erp-section-heading p {
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* Panel headings — preserve the existing design */
+.erp-fault-detail-page .erp-panel-header {
+    min-height: 36px;
+    padding: 9px 13px;
+    font-size: 14px;
+}
+
+/* Panels */
+.erp-fault-detail-page .erp-panel {
+    margin-bottom: 16px;
+}
+
+/* Panel content */
+.erp-fault-detail-page .erp-panel-body {
+    padding: 16px;
+}
+
+/* Detail grids */
+.erp-fault-detail-page .erp-detail-grid {
+    column-gap: 24px;
+    row-gap: 16px;
+}
+
+/* Field labels */
+.erp-fault-detail-page .erp-detail-grid .erp-summary-label,
+.erp-fault-detail-page .erp-detail-block .erp-summary-label {
+    margin-bottom: 5px;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+/* Field values */
+.erp-fault-detail-page .erp-detail-grid p,
+.erp-fault-detail-page .erp-detail-block p {
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Summary and recommended-action blocks */
+.erp-fault-detail-page .erp-detail-block {
+    margin-top: 16px;
+    padding-top: 12px;
+}
+
+/* Repair report content */
+.erp-fault-detail-page .erp-report-section {
+    margin-top: 14px;
+    padding-top: 12px;
+}
+
+/* Review decision panel */
+.erp-fault-detail-page .erp-review-section {
+    margin-top: 14px;
+}
+
+/* Buttons and form controls */
+.erp-fault-detail-page button,
+.erp-fault-detail-page input,
+.erp-fault-detail-page select,
+.erp-fault-detail-page textarea {
+    font-size: 12px;
+}
+
+/* Smaller screens */
+@media (max-width: 768px) {
+    .erp-fault-detail-page .erp-panel-body {
+        padding: 12px;
+    }
+
+    .erp-fault-detail-page .erp-detail-grid {
+        column-gap: 16px;
+        row-gap: 12px;
+    }
+}
+
+/* Improve spacing between fields on detail pages */
+.erp-fault-detail-page .erp-detail-grid {
+    row-gap: 22px;
+    column-gap: 28px;
+}
+
+/* Separate each label from its value */
+.erp-fault-detail-page .erp-detail-grid .erp-summary-label {
+    display: block;
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+/* Make values easier to scan */
+.erp-fault-detail-page .erp-detail-grid p {
+    margin-top: 0;
+    margin-bottom: 0;
+    line-height: 1.6;
+}
+
+/* Report review actions: match the existing dark-and-amber portal */
+.erp-portal .erp-report-review-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #e8c477;
+    font-weight: 650;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.erp-portal .erp-report-review-link:hover {
+    color: #ffe2a0;
+    text-decoration: underline;
+}
+
+.erp-portal .erp-report-alert {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 15px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-size: 11px;
+    line-height: 1;
+    animation: erp-report-alert-pulse 1.4s ease-in-out infinite;
+}
+
+.erp-portal .erp-report-readonly-link {
+    color: #8fd0a0;
+}
+
+.erp-portal .erp-review-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.erp-portal .erp-review-comment {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 8px;
+    padding: 10px 12px;
+    border: 1px solid #303037;
+    border-radius: 2px;
+    background: #0d0d10;
+    color: #e8e9ed;
+    font: 13px/1.5 Inter, "Segoe UI", Arial, sans-serif;
+    resize: vertical;
+}
+
+.erp-portal .erp-review-comment:focus {
+    outline: none;
+    border-color: #c9a050;
+    box-shadow: 0 0 0 1px rgba(201, 160, 80, 0.2);
+}
+
+.erp-portal .erp-review-button {
+    padding: 9px 13px;
+    border: 1px solid #527b5c;
+    border-radius: 2px;
+    background: rgba(106, 169, 122, 0.12);
+    color: #9bd5a8;
+    font: 600 12px/1.4 Inter, "Segoe UI", Arial, sans-serif;
+    cursor: pointer;
+}
+
+.erp-portal .erp-review-button:hover {
+    background: rgba(106, 169, 122, 0.22);
+}
+
+.erp-portal .erp-review-button-danger {
+    border-color: #8a4944;
+    background: rgba(192, 96, 85, 0.10);
+    color: #e18b82;
+}
+
+.erp-portal .erp-review-button-danger:hover {
+    background: rgba(192, 96, 85, 0.20);
+}
+
+@keyframes erp-report-alert-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .erp-portal .erp-report-alert {
+        animation: none;
+    }
+}
+
+/* ==========================================
+   TECHNICIAN DIRECTORY
+   ========================================== */
+
+#technicians .erp-table-wrapper {
+    overflow-x: auto;
+}
+
+#technicians .erp-data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#technicians .erp-data-table th,
+#technicians .erp-data-table td {
+    padding: 12px 14px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+#technicians .erp-data-table td strong {
+    color: var(--amber, #c9a050);
+}
+
+#technicians .erp-data-table td div {
+    margin: 3px 0;
+    line-height: 1.5;
+}
+
+#technicians .erp-data-table td small {
+    color: var(--muted, #8e8e94);
+    font-size: 0.85em;
+}
+
+/* Consistent gold profile links */
+#technicians .erp-data-table a,
+#technicians .erp-data-table a:visited {
+    color: var(--amber, #c9a050);
+    text-decoration: none;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+#technicians .erp-data-table a:hover {
+    color: #f0d18a;
+    text-decoration: underline;
+}
+
+/* ==========================================
+   TECHNICIAN PROFILE
+   ========================================== */
+
+.technician-profile-panel {
+    margin-bottom: 18px;
+}
+
+.technician-profile-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    padding: 8px 0;
+}
+
+.technician-profile-item {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    min-width: 0;
+    padding: 16px 18px;
+    border-right: 1px solid var(--border, #26262c);
+}
+
+.technician-profile-item:last-child {
+    border-right: none;
+}
+
+.technician-profile-label {
+    color: var(--muted, #8e8e94);
+    font-size: 0.5rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.technician-profile-item strong {
+    color: var(--text, #e5e5e2);
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.technician-muted {
+    color: var(--muted, #8e8e94);
+    font-weight: 400;
+}
+
+.technician-availability {
+    color: var(--green, #6aa97a) !important;
+}
+
+@media (max-width: 900px) {
+    .technician-profile-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .technician-profile-item:nth-child(2) {
+        border-right: none;
+    }
+
+    .technician-profile-item:nth-child(-n+2) {
+        border-bottom: 1px solid var(--border, #26262c);
+    }
+}
+
+@media (max-width: 500px) {
+    .technician-profile-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .technician-profile-item {
+        border-right: none;
+        border-bottom: 1px solid var(--border, #26262c);
+    }
+
+    .technician-profile-item:last-child {
+        border-bottom: none;
+    }
+}
+
+/* Technician profile navigation */
+.erp-main-content > p > a,
+.erp-main-content > p > a:visited {
+    color: var(--amber, #c9a050);
+    text-decoration: none;
+}
+
+.erp-main-content > p > a:hover {
+    color: #f0d18a;
+    text-decoration: underline;
+}
+
+/* Space between panels on the technician profile page */
+.technician-profile-panel {
+    margin-bottom: 18px;
+}
+
+.technician-profile-panel ~ .erp-panel {
+    margin-top: 18px;
+}
+
+.erp-panel {
+    margin-top: 62px;
+    margin-bottom: 32px;
+}
+
+/* Keep the collapsible heading and toggle on opposite ends */
+.erp-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Push the expand/collapse symbol to the far right */
+.erp-panel-header .toggle-icon {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.erp-report-parts-time {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px 32px;
+    align-items: start;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #26262c;
+}
+
+/* Manual Technician Assignment */
+
+.manual-assignment-panel {
+    overflow: hidden;
+}
+
+.manual-assignment-content {
+    padding: 20px;
+}
+
+.manual-assignment-description {
+    margin: 0 0 22px;
+    color: var(--steel, #8b97a3);
+    font-size: 13px;
+    line-height: 1.7;
+    max-width: 720px;
+}
+
+.manual-assignment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    max-width: 720px;
+}
+
+.manual-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.manual-form-group label {
+    color: var(--text, #e5e5e2);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+.manual-form-control {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 43px;
+    padding: 11px 13px;
+    background: var(--background, #08080a);
+    border: 1px solid var(--border, #26262c);
+    border-radius: 5px;
+    color: var(--text, #e5e5e2);
+    font: inherit;
+    font-size: 13px;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.manual-form-control:focus {
+    outline: none;
+    border-color: var(--amber, #c9a050);
+    box-shadow: 0 0 0 2px rgb(201 160 80 / 12%);
+}
+
+.manual-form-control option {
+    background: #141418;
+    color: #e5e5e2;
+}
+
+.manual-form-control textarea,
+textarea.manual-form-control {
+    min-height: 100px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.manual-field-hint {
+    color: var(--steel, #8b97a3);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.manual-override-confirmation {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 15px;
+    background: rgb(201 160 80 / 5%);
+    border: 1px solid rgb(201 160 80 / 25%);
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.manual-override-confirmation input {
+    flex-shrink: 0;
+    margin: 3px 0 0;
+    accent-color: var(--amber, #c9a050);
+    cursor: pointer;
+}
+
+.manual-override-confirmation span {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.manual-override-confirmation strong {
+    color: var(--text, #e5e5e2);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.manual-override-confirmation small {
+    color: var(--steel, #8b97a3);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.manual-assignment-actions {
+    display: flex;
+    justify-content: flex-start;
+    padding-top: 2px;
+}
+
+.manual-assignment-actions .erp-button {
+    min-height: 40px;
+    padding: 0 20px;
+    cursor: pointer;
+}
+
+@media (max-width: 600px) {
+    .manual-assignment-content {
+        padding: 15px;
+    }
+
+    .manual-assignment-form {
+        gap: 18px;
+    }
+
+    .manual-assignment-actions .erp-button {
+        width: 100%;
+    }
+}
+
+/* Fault detail page: restore vertical section spacing */
+.fault-detail-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.fault-detail-container > .erp-panel {
+    margin-bottom: 0;
+}
+
+/* Fault detail page section spacing */
+.erp-fault-detail-page .erp-section {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.erp-fault-detail-page .erp-section-heading {
+    margin-bottom: 0;
+}

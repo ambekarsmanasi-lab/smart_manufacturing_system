@@ -1,0 +1,341 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Fault Details | Maintenance</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/erp-portal.css') }}">
+</head>
+<body class="erp-fault-detail-page">
+<main class="erp-portal">
+    <header class="erp-topbar">
+        <div class="erp-brand">
+            <div>
+                <h1 class="erp-heading">Maintenance</h1>
+                <div class="erp-subtitle">Maintenance Operations</div>
+            </div>
+        </div>
+
+        <div class="erp-header-actions">
+            <span class="erp-role">Maintenance Head</span>
+            <form method="POST" action="{{ url_for('logout') }}">
+                <button class="erp-button" type="submit">Logout</button>
+            </form>
+        </div>
+    </header>
+
+    <div class="erp-content">
+        <p>
+            <a href="{{ url_for('maintenance_head') }}#faults">
+                &larr; Back to Faults
+            </a>
+        </p>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="erp-panel" role="status" aria-live="polite">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% if fault %}
+            <section class="erp-section">
+                <div class="erp-section-heading">
+                    <div>
+                        <h2>Fault #{{ fault.fault_id }}</h2>
+                        <p>{{ fault.fault_name }} · {{ fault.fault_code }}</p>
+                    </div>
+                    <span class="erp-role">{{ fault.status }}</span>
+                </div>
+
+                <div class="erp-panel">
+                    <div class="erp-panel-header">Fault Information</div>
+                    <div class="erp-panel-body">
+                        <div class="erp-detail-grid">
+                            <div>
+                                <span class="erp-summary-label">Machine</span>
+                                <p>{{ fault.machine_name }}</p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Production Line</span>
+                                <p>{{ fault.production_line }}</p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Machine Type</span>
+                                <p>{{ fault.machine_type or '—' }}</p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Machine Criticality</span>
+                                <p>{{ fault.criticality }}</p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Severity</span>
+                                <p>{{ fault.severity }}</p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Category</span>
+                                <p>{{ fault.category.replace('_', ' ') }}</p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Confidence</span>
+                                <p>
+                                    {% if fault.confidence is not none %}
+                                        {{ (fault.confidence * 100)|round(1) }}%
+                                    {% else %}
+                                        Not recorded
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Estimated Time to Failure</span>
+                                <p>
+                                    {% if fault.est_ttf_hrs is not none %}
+                                        {{ fault.est_ttf_hrs }} hours
+                                    {% else %}
+                                        Not estimated
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">First Detected</span>
+                                <p>{{ fault.detected_at.strftime('%d %b %Y, %H:%M') }}</p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Last Seen</span>
+                                <p>{{ fault.last_seen_at.strftime('%d %b %Y, %H:%M') }}</p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Occurrences</span>
+                                <p>{{ fault.occurrence_count }}</p>
+                            </div>
+                            <div>
+                                <span class="erp-summary-label">Model Version</span>
+                                <p>{{ fault.model_version or 'Not recorded' }}</p>
+                            </div>
+                        </div>
+
+                        <div class="erp-detail-block">
+                            <span class="erp-summary-label">SUMMARY</span>
+                            <p>{{ fault.summary or 'No summary recorded.' }}</p>
+                        </div>
+
+                            <div class="erp-detail-block">
+                                <span class="erp-summary-label">RECOMMENDED ACTION</span>
+                                <p>{{ fault.recommended_action or 'No recommended action recorded.' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="erp-panel">
+                        <div class="erp-panel-header">Technician Recommendations</div>
+
+
+                        {% if fault.status == 'OPEN' %}
+                            {% if recommendations %}
+                                <div class="erp-table-wrapper">
+                                    <table class="erp-data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Technician</th>
+                                                <th>Active Orders</th>
+                                                <th>Average Proficiency</th>
+                                                <th>Availability</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for technician in recommendations %}
+                                                <tr>
+                                                    <td>
+                                                        <strong>{{ technician.username }}</strong>
+                                                        {% if loop.first %}
+                                                            <div class="erp-recommendation-label">
+                                                                Top recommendation
+                                                            </div>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {{ technician.active_orders }}
+                                                        / {{ technician.max_active_orders }}
+                                                    </td>
+                                                    <td>
+                                                        {{ technician.avg_proficiency|round(2) }}
+                                                        / 3
+                                                    </td>
+                                                    <td>{{ technician.availability }}</td>
+                                                    <td>
+                                                        <form method="POST"
+                                                            action="{{ url_for('assign_technician', fault_id=fault.fault_id) }}">
+                                                            <input type="hidden"
+                                                                name="technician_id"
+                                                                value="{{ technician.technician_id }}">
+                                                            <button class="erp-button" type="submit">
+                                                                Assign
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="erp-empty-state">
+                                    <p>No qualified technicians found.</p>
+                                    <span>
+                                        Check technician skills, proficiency requirements,
+                                        availability, and active workload.
+                                    </span>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="erp-empty-state">
+                                <p>This fault has already been assigned or is no longer open.</p>
+                                <span>No further assignment is available for this fault.</span>
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                    <div class="erp-panel">
+                        
+                        <div class="erp-panel-header">
+                            Manual Technician Assignment
+                        </div>
+
+                        {% if fault.status == 'OPEN' %}
+                            <div class="manual-assignment-content">
+                                <p class="manual-assignment-description">
+                                    Assign this fault to a technician directly. Skill and workload
+                                    restrictions may be overridden with a documented reason.
+                                </p>
+
+                                <form method="POST"
+                                    action="{{ url_for('assign_technician', fault_id=fault.fault_id) }}"
+                                    class="manual-assignment-form">
+
+                                    <div class="manual-form-group">
+                                        <label for="manual-technician">Technician</label>
+
+                                        <select id="manual-technician"
+                                                name="technician_id"
+                                                class="manual-form-control"
+                                                required>
+                                            <option value="">Select a technician</option>
+
+                                            {% for technician in all_technicians %}
+                                                <option value="{{ technician.technician_id }}"
+                                                    {% if technician.availability != 'AVAILABLE' %}
+                                                        disabled
+                                                    {% endif %}>
+                                                    {{ technician.username }}
+                                                    · {{ technician.availability }}
+                                                    · {{ technician.active_orders }}/{{ technician.max_active_orders }} active orders
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+
+                                        <span class="manual-field-hint">
+                                            Technicians who are unavailable cannot be selected.
+                                        </span>
+                                    </div>
+
+                                    <div class="manual-form-group">
+                                        <label for="override-reason">Assignment justification</label>
+
+                                        <textarea id="override-reason"
+                                                name="override_reason"
+                                                class="manual-form-control"
+                                                rows="3"
+                                                maxlength="500"
+                                                placeholder="Explain why this technician was selected..."
+                                                required></textarea>
+                                    </div>
+
+                                    <label class="manual-override-confirmation">
+                                        <input type="checkbox"
+                                            name="confirm_override"
+                                            value="1"
+                                            required>
+
+                                        <span>
+                                            <strong>Confirm manual assignment</strong>
+                                            <small>
+                                                I understand that this assignment may exceed the
+                                                technician's workload limit or bypass required
+                                                skill proficiency checks.
+                                            </small>
+                                        </span>
+                                    </label>
+
+                                    <div class="manual-assignment-actions">
+                                        <button type="submit" class="erp-button">
+                                            Assign Technician
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        {% else %}
+                            <div class="erp-empty-state">
+                                <p>This fault is no longer open for assignment.</p>
+                                <span>No further assignment is available for this fault.</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="erp-panel">
+                        <div class="erp-panel-header">Sensor Evidence</div>
+                    {% if evidence %}
+                        <div class="erp-table-wrapper">
+                            <table class="erp-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Sensor ID</th>
+                                        <th>Sensor Type</th>
+                                        <th>Observed</th>
+                                        <th>Expected</th>
+                                        <th>Unit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in evidence %}
+                                        <tr>
+                                            <td>{{ item.sensor_id }}</td>
+                                            <td>{{ item.sensor_type }}</td>
+                                            <td>
+                                                {{ item.observed_value if item.observed_value is not none else '—' }}
+                                            </td>
+                                            <td>
+                                                {{ item.expected_value if item.expected_value is not none else '—' }}
+                                            </td>
+                                            <td>{{ item.unit or '—' }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="erp-empty-state">
+                            <p>No sensor evidence recorded.</p>
+                            <span>No evidence entries are linked to this fault.</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+        {% else %}
+            <section class="erp-panel">
+                <div class="erp-empty-state">
+                    <h2>Fault not found</h2>
+                    <p>No fault exists with that ID.</p>
+                </div>
+            </section>
+        {% endif %}
+    </div>
+</main>
+</body>
+</html>

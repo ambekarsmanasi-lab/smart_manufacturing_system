@@ -1,0 +1,36 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/erp-portal.css') }}">
+</head>
+<body class="erp-login-page">
+    <main class="erp-portal">
+        <section class="erp-login">
+            <h1>Login</h1>
+
+            {% with messages = get_flashed_messages() %}
+                {% for message in messages %}
+                    <p class="erp-message">{{ message }}</p>
+                {% endfor %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('login') }}">
+                <label for="username">Username</label>
+                <input id="username" name="username"
+                       autocomplete="username" required>
+
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password"
+                       autocomplete="current-password" required>
+
+                <button type="submit">Login</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Repair Report | Maintenance</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/erp-portal.css') }}"
+    >
+
+<style>
+.erp-report-parts-time {
+    display: grid;
+    grid-template-columns: 220px 180px;
+    gap: 6px 28px;
+    align-items: start;
+    margin-top: 4px;
+}
+.erp-report-parts-time p {
+    margin: 3px 0 0;
+}
+.erp-report-parts-time > div {
+    min-width: 0;
+}
+.erp-report-parts-time > div { min-width: 0; }
+.erp-report-parts-time .erp-summary-label {
+    display: block;
+    margin-bottom: 4px;
+}
+#review-decision-panel .erp-panel-body,
+#review-decision-panel .erp-panel-content {
+    padding-top: 8px;
+}
+#review-decision-panel > :not(.erp-panel-header) {
+    margin-top: 0;
+}
+#review-decision-panel .erp-review-message {
+    margin-top: 0;
+    padding-top: 0;
+}
+#review-decision-panel p:first-child {
+    margin-top: 0;
+}
+.erp-collapsible-info > summary {
+    list-style: none;
+    cursor: pointer;
+}
+.erp-collapsible-info > summary::-webkit-details-marker { display: none; }
+.erp-collapsible-info > summary::after {
+    content: "−";
+    float: right;
+    color: #c9a050;
+    font-weight: 700;
+}
+.erp-collapsible-info:not([open]) > summary::after { content: "+"; }
+@media (max-width: 640px) {
+    .erp-report-parts-time {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}
+</style>
+
+</head>
+
+<body class="erp-fault-detail-page">
+
+<main class="erp-portal">
+
+    <header class="erp-topbar">
+        <div class="erp-brand">
+            <div>
+                <h1 class="erp-heading">Maintenance</h1>
+                <div class="erp-subtitle">Maintenance Operations</div>
+            </div>
+        </div>
+
+        <div class="erp-header-actions">
+            <span class="erp-role">{{ "Maintenance Head" if viewer_role == "maintenance_head" else "Technician" }}</span>
+
+            <form method="POST" action="{{ url_for('logout') }}">
+                <button class="erp-button" type="submit">
+                    Logout
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <div class="erp-content">
+
+        <p>
+            {% if viewer_role == "technician" %}
+                <a href="{{ url_for('technician') }}">
+                    &larr; Back to My Work Orders
+                </a>
+            {% else %}
+                <a href="{{ url_for('maintenance_head') }}#work-orders">
+                    &larr; Back to Work Orders
+                </a>
+            {% endif %}
+        </p>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="erp-panel" role="status" aria-live="polite">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% if report %}
+
+            <section class="erp-section">
+
+                <div class="erp-section-heading">
+                    <div>
+                        <h2>Repair Report #{{ report.report_id }}</h2>
+
+                        <p>
+                            Work Order #{{ report.work_order_id }}
+                            &middot;
+                            {{ report.machine_name }}
+                        </p>
+                    </div>
+
+                    <span class="erp-role">
+                        {{ report.review_status.replace('_', ' ') }}
+                    </span>
+                </div>
+
+                <!-- Work Order and Machine Information -->
+                <div class="erp-panel" id="work-order-info-panel">
+                    <details class="erp-collapsible-info" open>
+                        <summary class="erp-panel-header">
+                            Work Order Information
+                        </summary>
+
+                    <div class="erp-panel-body">
+
+                        <div class="erp-detail-grid">
+
+                            <div>
+                                <span class="erp-summary-label">
+                                    Work Order
+                                </span>
+                                <p>#{{ report.work_order_id }}</p>
+                            </div>
+
+                            <div>
+                                <span class="erp-summary-label">
+                                    Work Order Status
+                                </span>
+                                <p>
+                                    {{ report.work_order_status.replace('_', ' ') }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <span class="erp-summary-label">
+                                    Machine
+                                </span>
+                                <p>{{ report.machine_name }}</p>
+                            </div>
+
+                            <div>
+                                <span class="erp-summary-label">
+                                    Production Line
+                                </span>
+                                <p>{{ report.production_line }}</p>
+                            </div>
+
+                            <div>
+                                <span class="erp-summary-label">
+                                    Machine Type
+                                </span>
+                                <p>{{ report.machine_type or '—' }}</p>
+                            </div>
+
+                            <div>
+                                <span class="erp-summary-label">
+                                    Machine Criticality
+                                </span>
+                                <p>{{ report.criticality }}</p>
+                            </div>
+
+                            <div>
+                                <span class="erp-summary-label">
+                                    Fault
+                                </span>
+                                <p>
+                                    #{{ report.fault_id }}
+                                    — {{ report.fault_name }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <span class="erp-summary-label">
+                                    Severity
+                                </span>
+                                <p>{{ report.severity }}</p>
+                            </div>
+
+                            <div>
+                                <span class="erp-summary-label">
+                                    Technician
+                                </span>
+                                <p>{{ report.technician_username }}</p>
+                            </div>
+
+                            <div>
+                                <span class="erp-summary-label">
+                                    Submitted At
+                                </span>
+                                <p>
+                                    {{ report.submitted_at.strftime('%d %b %Y, %H:%M')
+                                       if report.submitted_at else '—' }}
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div class="erp-detail-block">
+                            <span class="erp-summary-label">
+                                FAULT SUMMARY
+                            </span>
+
+                            <p>
+                                {{ report.fault_summary or 'No fault summary recorded.' }}
+                            </p>
+                        </div>
+
+                        <div class="erp-detail-block">
+                            <span class="erp-summary-label">
+                                WORK ORDER INSTRUCTIONS
+                            </span>
+
+                            <p>
+                                {{ report.instructions or 'No instructions recorded.' }}
+                            </p>
+                        </div>
+
+                    </div>
+                    </details>
+                </div>
+
+                <!-- Technician's Report -->
+                <div class="erp-panel" id="technician-report-panel">
+
+                    <div class="erp-panel-header">
+                        Technician Repair Report
+                    </div>
+
+                    <div class="erp-panel-body">
+
+                        <div class="erp-detail-block">
+                            <span class="erp-summary-label">
+                                FINDINGS
+                            </span>
+
+                            <p>{{ report.findings }}</p>
+                        </div>
+
+                        <div class="erp-detail-block">
+                            <span class="erp-summary-label">
+                                ACTION TAKEN
+                            </span>
+
+                            <p>{{ report.action_taken }}</p>
+                        </div>
+
+                        <div class="erp-report-parts-time">
+
+                            <div>
+                                <span class="erp-summary-label">PARTS USED</span>
+                                <p>{{ report.parts_used or 'None recorded' }}</p>
+                            </div>
+
+                            <div>
+                                <span class="erp-summary-label">TIME SPENT</span>
+                                <p>
+                                    {% if report.time_spent_mins is not none %}
+                                        {{ report.time_spent_mins }} minutes
+                                    {% else %}
+                                        Not recorded
+                                    {% endif %}
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <!-- Full report history for this work order -->
+                <div class="erp-panel" id="report-history-panel">
+                    <div class="erp-panel-header">
+                        Report History — Work Order #{{ report.work_order_id }}
+                    </div>
+                    <div class="erp-panel-body">
+                        {% if report_history %}
+                            <div class="erp-report-history-table-wrapper">
+                                <table class="erp-data-table erp-report-history-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Technician Report #</th>
+                                            <th>Submitted</th>
+                                            <th>Decision</th>
+                                            <th>Review Comment</th>
+                                            <th>Open</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in report_history %}
+                                            <tr>
+                                                <td>#{{ item.technician_report_number }}</td>
+                                                <td>
+                                                    {{ item.submitted_at.strftime('%d %b %Y, %H:%M')
+                                                       if item.submitted_at else '—' }}
+                                                </td>
+                                                <td>{{ item.review_status.replace('_', ' ') }}</td>
+                                                <td class="erp-report-history-comment"
+                                                    title="{{ item.review_comment or 'No review comment' }}">
+                                                    {{ item.review_comment or '—' }}
+                                                </td>
+                                                <td class="erp-report-history-open">
+                                                    {% if item.report_id == report.report_id %}
+                                                        <strong>Currently viewing</strong>
+                                                    {% else %}
+                                                        <a href="{{ url_for(
+                                                            'work_order_report_detail',
+                                                            work_order_id=report.work_order_id,
+                                                            report_id=item.report_id
+                                                        ) }}" data-report-history-link data-report-history-link>View report</a>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p>No report history is available for this work order.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Review Decision -->
+                <div class="erp-panel" id="review-decision-panel">
+
+                    <div class="erp-panel-header">
+                        Review Decision
+                    </div>
+
+                    <div class="erp-panel-body">
+
+                        {% if can_review and report.review_status == 'PENDING_REVIEW'
+                              and report.work_order_status == 'SUBMITTED' %}
+
+                            <p>
+                                Review the technician's findings and repair
+                                actions before making a decision.
+                            </p>
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'review_repair_report',
+                                    work_order_id=report.work_order_id,
+                                    report_id=report.report_id
+                                ) }}"
+                            >
+                                <div class="erp-detail-block">
+                                    <label for="review_comment" class="erp-summary-label">
+                                        REVIEW COMMENT
+                                    </label>
+
+                                    <textarea
+                                        id="review_comment"
+                                        name="review_comment"
+                                        rows="3"
+                                        maxlength="2000"
+                                        class="erp-review-comment"
+                                        placeholder="Optional for approval; required when rejecting."
+                                    ></textarea>
+                                </div>
+
+                                <div class="erp-review-actions">
+                                    <button
+                                        class="erp-review-button"
+                                        type="submit"
+                                        name="decision"
+                                        value="approve"
+                                        onclick="return confirm('Approve this repair report and complete the work order?');"
+                                    >
+                                        Approve Report
+                                    </button>
+
+                                    <button
+                                        class="erp-review-button erp-review-button-danger"
+                                        type="submit"
+                                        name="decision"
+                                        value="reject"
+                                        onclick="if (!document.getElementById('review_comment').value.trim()) { alert('Enter a review comment before rejecting this report.'); return false; } return confirm('Reject this report and send the work order for rework?');"
+                                    >
+                                        Reject &amp; Request Rework
+                                    </button>
+                                </div>
+                            </form>
+
+                        {% elif report.review_status == 'PENDING_REVIEW' %}
+                            <p>This report is awaiting the Maintenance Head's decision.</p>
+
+                        {% elif report.review_status == 'REJECTED' %}
+
+                            <p>This report was rejected and requires rework.</p>
+
+                            <div class="erp-detail-block">
+                                <span class="erp-summary-label">
+                                    REVIEW COMMENT
+                                </span>
+
+                                <p>
+                                    {{ report.review_comment or 'No review comment recorded.' }}
+                                </p>
+                            </div>
+
+                            {% if report.reviewed_at %}
+                                <div class="erp-detail-block">
+                                    <span class="erp-summary-label">REVIEWED AT</span>
+                                    <p>{{ report.reviewed_at.strftime('%d %b %Y, %H:%M') }}</p>
+                                </div>
+                            {% endif %}
+
+                        {% elif report.review_status == 'APPROVED' %}
+
+                            <p>This report has been approved.</p>
+
+                            {% if report.review_comment %}
+                                <div class="erp-detail-block">
+                                    <span class="erp-summary-label">
+                                        REVIEW COMMENT
+                                    </span>
+
+                                    <p>{{ report.review_comment }}</p>
+                                </div>
+                            {% endif %}
+
+                            <div class="erp-detail-block">
+                                <span class="erp-summary-label">
+                                    REVIEWED AT
+                                </span>
+
+                                <p>
+                                    {{ report.reviewed_at.strftime('%d %b %Y, %H:%M')
+                                       if report.reviewed_at else '—' }}
+                                </p>
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            </section>
+
+        {% else %}
+
+            <section class="erp-panel">
+                <div class="erp-empty-state">
+                    <h2>Report not found</h2>
+                    <p>No repair report exists with those identifiers.</p>
+                </div>
+            </section>
+
+        {% endif %}
+
+    </div>
+
+</main>
+
+
+<script>
+(() => {
+    async function loadReportInPlace(url, pushState = true) {
+        const response = await fetch(url, {
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+        });
+        if (!response.ok) {
+            window.location.href = url;
+            return;
+        }
+
+        const html = await response.text();
+        const parsed = new DOMParser().parseFromString(html, "text/html");
+        const panelIds = [
+            "technician-report-panel",
+            "report-history-panel",
+            "review-decision-panel"
+        ];
+
+        for (const id of panelIds) {
+            const currentPanel = document.getElementById(id);
+            const newPanel = parsed.getElementById(id);
+            if (!currentPanel || !newPanel) {
+                window.location.href = url;
+                return;
+            }
+            currentPanel.replaceWith(newPanel);
+        }
+
+        // Keep the existing Work Order Information open/closed state and scroll position.
+        if (pushState) history.pushState({ reportUrl: url }, "", url);
+        window.bindReportHistoryLinks();
+    }
+
+    window.bindReportHistoryLinks = function () {
+        document.querySelectorAll("a[data-report-history-link]").forEach(link => {
+            link.onclick = event => {
+                event.preventDefault();
+                loadReportInPlace(link.href);
+            };
+        });
+    };
+
+    window.addEventListener("popstate", () => {
+        loadReportInPlace(window.location.href, false);
+    });
+
+    window.bindReportHistoryLinks();
+})();
+</script>
+
+</body>
+</html>
+<style>
+
+/* Compact report history: avoid a horizontal scrollbar for long review comments. */
+.erp-report-history-table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.erp-report-history-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.erp-report-history-table th,
+.erp-report-history-table td {
+    overflow: hidden;
+    vertical-align: middle;
+}
+
+.erp-report-history-table th:nth-child(1),
+.erp-report-history-table td:nth-child(1) { width: 15%; }
+
+.erp-report-history-table th:nth-child(2),
+.erp-report-history-table td:nth-child(2) { width: 19%; }
+
+.erp-report-history-table th:nth-child(3),
+.erp-report-history-table td:nth-child(3) { width: 14%; }
+
+.erp-report-history-table th:nth-child(4),
+.erp-report-history-table td:nth-child(4) { width: 34%; }
+
+.erp-report-history-table th:nth-child(5),
+.erp-report-history-table td:nth-child(5) { width: 18%; }
+
+.erp-report-history-comment {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.erp-report-history-open {
+    white-space: nowrap;
+}
+
+</style>

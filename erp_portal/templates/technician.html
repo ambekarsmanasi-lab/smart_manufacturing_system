@@ -1,0 +1,330 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Technician Workspace</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/erp-portal.css') }}">
+</head>
+<body>
+<main class="erp-portal">
+
+    <header class="erp-topbar">
+        <div class="erp-brand">
+            <div>
+                <h1 class="erp-heading">Maintenance</h1>
+                <div class="erp-subtitle">Technician Workspace</div>
+            </div>
+        </div>
+
+        <div class="erp-header-actions">
+            <span class="erp-role">Technician</span>
+            <form method="POST" action="{{ url_for('logout') }}">
+                <button class="erp-button" type="submit">Logout</button>
+            </form>
+        </div>
+    </header>
+
+    <div class="erp-content">
+        <section class="erp-section">
+            <div class="erp-section-heading">
+                <div>
+                    <h2>My Work Orders</h2>
+                    <p>
+                        Welcome, {{ username }}.
+                        Review your assigned maintenance tasks.
+                    </p>
+                </div>
+            </div>
+
+            <div class="erp-summary-grid">
+                <article class="erp-summary-card">
+                    <span class="erp-summary-label">Total Assigned</span>
+                    <span class="erp-summary-value">{{ work_orders|length }}</span>
+                    <span class="erp-summary-note">Your work orders</span>
+                </article>
+
+                <article class="erp-summary-card">
+                    <span class="erp-summary-label">Assigned</span>
+                    <span class="erp-summary-value">
+                        {{ work_orders|selectattr('status', 'equalto', 'ASSIGNED')|list|length }}
+                    </span>
+                    <span class="erp-summary-note">Ready to start</span>
+                </article>
+
+                <article class="erp-summary-card">
+                    <span class="erp-summary-label">In Progress</span>
+                    <span class="erp-summary-value">
+                        {{ work_orders|selectattr('status', 'equalto', 'IN_PROGRESS')|list|length }}
+                    </span>
+                    <span class="erp-summary-note">Repairs underway</span>
+                </article>
+
+                <article class="erp-summary-card">
+                    <span class="erp-summary-label">Needs Rework</span>
+                    <span class="erp-summary-value">
+                        {{ work_orders|selectattr('status', 'equalto', 'REWORK')|list|length }}
+                    </span>
+                    <span class="erp-summary-note">Requires further work</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="erp-section">
+            <div class="erp-panel">
+                <!-- <div class="erp-panel-header">Assigned Maintenance Tasks</div> -->
+
+                {% if work_orders %}
+                    <div class="erp-table-wrapper">
+                        <table class="erp-data-table">
+                            <thead>
+                                <tr>
+                                    <th>Work Order</th>
+                                    <th>Machine</th>
+                                    <th>Fault</th>
+                                    <th>Severity</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Assigned</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in work_orders %}
+                                    <tr>
+                                        <td>#{{ order.work_order_id }}</td>
+                                        <td>
+                                            <strong>{{ order.machine_name }}</strong>
+                                            <div>
+                                                <small>{{ order.production_line }}</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {{ order.fault_name }}
+                                            <div>
+                                                <small>
+                                                    Fault #{{ order.fault_id }}
+                                                    · {{ order.fault_code }}
+                                                </small>
+                                            </div>
+                                        </td>
+                                        <td>{{ order.severity }}</td>
+                                        <td>{{ order.priority }}</td>
+                                        <td>{{ order.status.replace('_', ' ') }}</td>
+                                        <td>
+                                            {{ order.assigned_at.strftime('%d %b %Y, %H:%M')
+                                               if order.assigned_at else '—' }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="7">
+                                            <!-- Instructions -->
+                                            <div class="erp-detail-block">
+                                                <span class="erp-summary-label">INSTRUCTIONS</span>
+                                                <p>{{ order.instructions or 'No instructions provided.' }}</p>
+                                            </div>
+
+                                            <!-- Fault Summary -->
+                                            {% if order.summary %}
+                                                <div class="erp-detail-block">
+                                                    <span class="erp-summary-label">FAULT SUMMARY</span>
+                                                    <p>{{ order.summary }}</p>
+                                                </div>
+                                            {% endif %}
+
+                                            <!-- Repair Workspace -->
+                                            <div class="erp-repair-workspace">
+                                                <div class="erp-repair-workspace-header">
+                                                    <span class="erp-summary-label">REPAIR WORKSPACE</span>
+                                                </div>
+
+                                                {% if order.status == 'ASSIGNED' %}
+
+                                                    <form
+                                                        method="POST"
+                                                        action="{{ url_for('start_work', work_order_id=order.work_order_id) }}"
+                                                        style="margin-top: 16px;"
+                                                    >
+                                                        <button type="submit">Start Work</button>
+                                                    </form>
+
+                                                {% elif order.status == 'IN_PROGRESS' %}
+
+                                                    {% if order.latest_activity == 'PAUSED' %}
+
+                                                        <p>Work is paused.</p>
+
+                                                        <form
+                                                            method="POST"
+                                                            action="{{ url_for('resume_work', work_order_id=order.work_order_id) }}"
+                                                            style="margin-top: 16px;"
+                                                        >
+                                                            <button type="submit">Resume Work</button>
+                                                        </form>
+
+                                                    {% else %}
+
+                                                        <p>Work is in progress.</p>
+
+                                                        <form
+                                                            method="POST"
+                                                            action="{{ url_for('pause_work', work_order_id=order.work_order_id) }}"
+                                                            style="margin-top: 16px;"
+                                                        >
+                                                            <label for="pause-reason-{{ order.work_order_id }}">
+                                                                Reason for pausing
+                                                            </label>
+
+                                                            <input
+                                                                type="text"
+                                                                id="pause-reason-{{ order.work_order_id }}"
+                                                                name="reason"
+                                                                maxlength="255"
+                                                                placeholder="e.g. Waiting for replacement parts"
+                                                                required
+                                                            >
+
+                                                            <button type="submit">Pause Work</button>
+                                                        </form>
+
+                                                        <!-- Repair Report Form -->
+                                                        <form
+                                                            method="POST"
+                                                            action="{{ url_for('submit_repair_report', work_order_id=order.work_order_id) }}"
+                                                            class="erp-repair-report-form"
+                                                        >
+                                                            <div class="erp-detail-block">
+                                                                <span class="erp-summary-label">REPAIR FINDINGS</span>
+                                                                <textarea
+                                                                    name="findings"
+                                                                    rows="3"
+                                                                    required
+                                                                    placeholder="Describe what you found during inspection..."
+                                                                ></textarea>
+                                                            </div>
+
+                                                            <div class="erp-detail-block">
+                                                                <span class="erp-summary-label">ACTION TAKEN</span>
+                                                                <textarea
+                                                                    name="action_taken"
+                                                                    rows="3"
+                                                                    required
+                                                                    placeholder="Describe the repair or maintenance performed..."
+                                                                ></textarea>
+                                                            </div>
+
+                                                            <div class="erp-detail-block">
+                                                                <span class="erp-summary-label">PARTS USED (OPTIONAL)</span>
+                                                                <input
+                                                                    type="text"
+                                                                    name="parts_used"
+                                                                    maxlength="255"
+                                                                    placeholder="e.g. Bearing, lubricant"
+                                                                >
+                                                            </div>
+
+                                                            <div class="erp-detail-block">
+                                                                <span class="erp-summary-label">TIME SPENT (MINUTES)</span>
+                                                                <input
+                                                                    type="number"
+                                                                    name="time_spent_mins"
+                                                                    min="1"
+                                                                    step="1"
+                                                                    placeholder="e.g. 45"
+                                                                >
+                                                            </div>
+
+                                                            <button type="submit">Submit Repair Report</button>
+                                                        </form>
+
+                                                    {% endif %}
+
+                                                {% elif order.status == 'SUBMITTED' %}
+
+                                                    <p>Repair report submitted. Awaiting review.</p>
+                                                    {% if order.latest_report_id %}
+                                                        <p>
+                                                            <a href="{{ url_for(
+                                                                'work_order_report_detail',
+                                                                work_order_id=order.work_order_id,
+                                                                report_id=order.latest_report_id
+                                                            ) }}">View report and history</a>
+                                                        </p>
+                                                    {% endif %}
+
+                                                {% elif order.status == 'REWORK' %}
+
+                                                    <div class="erp-detail-block">
+                                                        <span class="erp-summary-label">REVIEW FEEDBACK</span>
+                                                        <p>
+                                                            {{ order.latest_rejection_comment
+                                                               or 'The Maintenance Head requested further work. Review the work instructions before restarting.' }}
+                                                        </p>
+                                                        {% if order.latest_rejected_report_id %}
+                                                            <p>
+                                                                <a href="{{ url_for(
+                                                                    'work_order_report_detail',
+                                                                    work_order_id=order.work_order_id,
+                                                                    report_id=order.latest_rejected_report_id
+                                                                ) }}">
+                                                                    View rejected report #{{ order.latest_rejected_report_id }}
+                                                                </a>
+                                                            </p>
+                                                        {% endif %}
+                                                    </div>
+
+                                                    <p>
+                                                        Correct the issues described in the review feedback,
+                                                        then start rework to submit a new repair report.
+                                                    </p>
+
+                                                    <form
+                                                        method="POST"
+                                                        action="{{ url_for('start_work', work_order_id=order.work_order_id) }}"
+                                                        style="margin-top: 16px;"
+                                                    >
+                                                        <button type="submit">Start Rework</button>
+                                                    </form>
+
+                                                {% elif order.status == 'COMPLETED' %}
+
+                                                    <p>Work order completed.</p>
+                                                    {% if order.latest_report_id %}
+                                                        <p>
+                                                            <a href="{{ url_for(
+                                                                'work_order_report_detail',
+                                                                work_order_id=order.work_order_id,
+                                                                report_id=order.latest_report_id
+                                                            ) }}">View report history</a>
+                                                        </p>
+                                                    {% endif %}
+
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="erp-empty-state">
+                        <p>No work orders assigned to you.</p>
+                        <span>
+                            New assignments from the Maintenance Head will
+                            appear here.
+                        </span>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <footer class="erp-footer">
+            Maintenance Operations
+        </footer>
+    </div>
+</main>
+
+</body>
+</html>
