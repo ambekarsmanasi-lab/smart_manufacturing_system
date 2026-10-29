@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from statistics import median
 from flask import Flask, jsonify, render_template
 import mysql.connector
 from dotenv import load_dotenv
@@ -10,6 +11,60 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 app = Flask(__name__)
+
+# Keep these values aligned with machine_monitor/fault_analyser.py.
+FRESHNESS_SECONDS = 5
+DETECTION_WINDOW_READINGS = 10
+BASELINE_LIMIT = 100
+MIN_BASELINE_READINGS = 30
+ROBUST_Z_THRESHOLD = 4.5
+
+
+def robust_baseline(values):
+    """Return the median and robust sigma (1.4826 * MAD)."""
+    center = median(values)
+    mad = median([abs(value - center) for value in values])
+    sigma = 1.4826 * mad
+    if sigma <= 1e-9:
+        mean = sum(values) / len(values)
+        variance = sum((value - mean) ** 2 for value in values) / len(values)
+        sigma = variance ** 0.5
+    return center, sigma
+
+
+def sensor_is_anomalous(cur, sensor_id):
+    """Mirror fault_analyser.py's sustained, fresh statistical detector."""
+    cur.execute(
+        """SELECT reading_id, recorded_at, value
+           FROM sensor_readings
+           WHERE sensor_id = %s
+           ORDER BY recorded_at DESC, reading_id DESC
+           LIMIT %s""",
+        (sensor_id, BASELINE_LIMIT + DETECTION_WINDOW_READINGS),
+    )
+    # SQL returns newest first; reverse to chronological order.
+    rows = list(reversed(cur.fetchall()))
+    if len(rows) < MIN_BASELINE_READINGS + DETECTION_WINDOW_READINGS:
+        return False
+
+    baseline_rows = rows[:-DETECTION_WINDOW_READINGS]
+    wave_rows = rows[-DETECTION_WINDOW_READINGS:]
+    newest_at = wave_rows[-1]["recorded_at"]
+    if isinstance(newest_at, str):
+        newest_at = datetime.fromisoformat(newest_at)
+    age_seconds = (datetime.now() - newest_at).total_seconds()
+    if age_seconds < -2 or age_seconds > FRESHNESS_SECONDS:
+        return False
+
+    baseline_values = [float(row["value"]) for row in baseline_rows]
+    center, sigma = robust_baseline(baseline_values)
+    if sigma <= 1e-9:
+        return False
+
+    scores = [(float(row["value"]) - center) / sigma for row in wave_rows]
+    high_count = sum(score >= ROBUST_Z_THRESHOLD for score in scores)
+    low_count = sum(score <= -ROBUST_Z_THRESHOLD for score in scores)
+    return high_count >= 7 or low_count >= 7
 
 DB_CONFIG = {
     "host": os.getenv("DB_HOST", "localhost"),
@@ -74,6 +129,14 @@ def overview():
             ORDER BY pl.name, m.name, s.sensor_id
         """)
         readings = cur.fetchall()
+
+        # The chip colour follows the detector's current sensor readings, not
+        # whether an OPEN/ASSIGNED fault record happens to exist.
+        for reading in readings:
+            reading["anomalous"] = (
+                reading.get("recorded_at") is not None
+                and sensor_is_anomalous(cur, reading["sensor_id"])
+            )
 
         # Fault records are displayed as alarm information only. They do not
         # determine the machine's operational state.

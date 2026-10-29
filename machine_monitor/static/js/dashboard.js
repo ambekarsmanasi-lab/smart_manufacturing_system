@@ -167,7 +167,7 @@ function makeCard(machine, readings, faults) {
       ? "—"
       : Number(reading.value).toFixed(2);
 
-    const anomalous = false;
+    const anomalous = Boolean(reading.anomalous);
     const freshness = isFresh(reading.recorded_at);
 
     const classes = [
@@ -179,7 +179,7 @@ function makeCard(machine, readings, faults) {
     return `
       <div class="${classes}"
            data-sensor-id="${esc(reading.sensor_id)}"
-           title="${anomalous ? "Active fault associated with this sensor" : ""}">
+           title="${anomalous ? "Sustained sensor anomaly detected" : ""}">
         <span class="sensor-reading-name">
           ${esc(reading.sensor_type)}
         </span>
