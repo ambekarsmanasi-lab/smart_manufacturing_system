@@ -62,17 +62,31 @@ def connect():
 
 def load_sensors(conn):
     cur = conn.cursor(dictionary=True)
+
     cur.execute("""
-        SELECT s.sensor_id, s.sensor_type, s.unit,
-               m.machine_id, m.name AS machine_name, m.criticality
+        SELECT
+            s.sensor_id,
+            s.sensor_type,
+            s.unit,
+            m.machine_id,
+            m.name AS machine_name,
+            m.criticality,
+            ft.fault_type_id,
+            ft.fault_code,
+            ft.name AS fault_name
         FROM sensors s
-        JOIN machines m ON m.machine_id = s.machine_id
+        JOIN machines m
+            ON m.machine_id = s.machine_id
+        LEFT JOIN sensor_fault_type_map map
+            ON map.sensor_id = s.sensor_id
+        LEFT JOIN fault_types ft
+            ON ft.fault_type_id = map.fault_type_id
         ORDER BY m.name, s.sensor_id
     """)
+
     rows = cur.fetchall()
     cur.close()
     return rows
-
 
 def load_fault_types(conn):
     cur = conn.cursor(dictionary=True)
@@ -131,9 +145,16 @@ def severity_for(score, criticality):
 
 
 def sensor_fault_type(sensor, fault_types):
-    key = str(sensor.get("sensor_type", "")).strip().lower()
-    code = FAULT_CODE_BY_SENSOR.get(key)
-    return fault_types.get(code) if code else None
+    fault_type_id = sensor.get("fault_type_id")
+
+    if fault_type_id is None:
+        return None
+
+    return {
+        "fault_type_id": fault_type_id,
+        "fault_code": sensor["fault_code"],
+        "name": sensor["fault_name"],
+    }
 
 
 def find_anomaly(conn, sensor):
@@ -287,7 +308,6 @@ def record_fault(conn, sensor, fault_type, anomaly):
 def main():
     last_handled_reading_id = {}
     last_status = None
-    last_missing_codes = None
     last_unmapped_sensors = None
 
     print("Smart Manufacturing ERP — fault analyser")
@@ -295,7 +315,7 @@ def main():
     print(f"Detection wave: latest {DETECTION_WINDOW_READINGS} readings per sensor.")
     print(f"Freshness limit: {FRESHNESS_SECONDS} seconds.")
     print("Waiting silently when no fresh sensor data is available.")
-    print("Press Ctrl+C to stop.\\n")
+    print("Press Ctrl+C to stop.\n")
 
     while True:
         conn = None
@@ -310,6 +330,7 @@ def main():
                     last_status = "no_sensors"
             else:
                 fresh_count = 0
+
                 for sensor in sensors:
                     cur = conn.cursor()
                     cur.execute("""
@@ -319,81 +340,102 @@ def main():
                     """, (sensor["sensor_id"],))
                     result = cur.fetchone()
                     cur.close()
+
                     latest_at = result[0] if result else None
+
                     if latest_at is not None:
                         age = (datetime.now() - latest_at).total_seconds()
                         if -2 <= age <= FRESHNESS_SECONDS:
                             fresh_count += 1
 
                 status = "fresh" if fresh_count else "waiting"
+
                 if status != last_status:
                     if status == "fresh":
-                        print(f"Live telemetry resumed ({fresh_count}/{len(sensors)} sensors fresh).")
-                    # No repeating "successful analysis" or waiting messages.
+                        print(
+                            f"Live telemetry resumed "
+                            f"({fresh_count}/{len(sensors)} sensors fresh)."
+                        )
                     last_status = status
 
-                missing_codes = sorted({
-                    code for s in sensors
-                    if (code := FAULT_CODE_BY_SENSOR.get(
-                        str(s.get("sensor_type", "")).strip().lower()
-                    )) and code not in fault_types
-                })
+                # Check which sensors have no mapping in the database.
                 unmapped_sensors = sorted({
-                    str(s.get("sensor_type", "")).strip()
-                    for s in sensors
-                    if str(s.get("sensor_type", "")).strip().lower()
-                    not in FAULT_CODE_BY_SENSOR
+                    str(sensor.get("sensor_type", "")).strip()
+                    for sensor in sensors
+                    if sensor.get("fault_type_id") is None
                 })
-                if missing_codes and missing_codes != last_missing_codes:
-                    print("Warning: no matching fault_types rows for: "
-                          + ", ".join(missing_codes))
-                last_missing_codes = missing_codes
-                if unmapped_sensors and unmapped_sensors != last_unmapped_sensors:
-                    print("Skipping sensors without a configured fault category: "
-                          + ", ".join(unmapped_sensors))
+
+                if (
+                    unmapped_sensors
+                    and unmapped_sensors != last_unmapped_sensors
+                ):
+                    print(
+                        "Skipping sensors without a database fault mapping: "
+                        + ", ".join(unmapped_sensors)
+                    )
+
                 last_unmapped_sensors = unmapped_sensors
 
+                # Analyse fresh sensor readings.
                 if fresh_count:
                     for sensor in sensors:
                         fault_type = sensor_fault_type(sensor, fault_types)
+
                         if not fault_type:
                             continue
 
                         anomaly = find_anomaly(conn, sensor)
+
                         if anomaly is None:
                             continue
 
                         sensor_id = sensor["sensor_id"]
                         reading_id = anomaly["latest_reading_id"]
+
                         if last_handled_reading_id.get(sensor_id) == reading_id:
                             continue
 
                         fault_id, created = record_fault(
                             conn, sensor, fault_type, anomaly
                         )
+
                         conn.commit()
                         last_handled_reading_id[sensor_id] = reading_id
-                        label = "REGISTERED NEW INCIDENT" if created else "UPDATED EXISTING INCIDENT"
+
+                        label = (
+                            "REGISTERED NEW INCIDENT"
+                            if created
+                            else "UPDATED EXISTING INCIDENT"
+                        )
+
                         print(
-                            f"{label} #{fault_id}: {sensor['machine_name']} / "
-                            f"{fault_type['name']} — {sensor['sensor_type']}="
-                            f"{anomaly['observed']:.3f} {sensor['unit'] or ''}; "
-                            f"{anomaly['wave_anomaly_count']}/{anomaly['wave_size']} "
-                            f"recent readings anomalous (baseline {anomaly['expected']:.3f})."
+                            f"{label} #{fault_id}: "
+                            f"{sensor['machine_name']} / "
+                            f"{fault_type['name']} — "
+                            f"{sensor['sensor_type']}="
+                            f"{anomaly['observed']:.3f} "
+                            f"{sensor['unit'] or ''}; "
+                            f"{anomaly['wave_anomaly_count']}/"
+                            f"{anomaly['wave_size']} recent readings "
+                            f"anomalous (baseline "
+                            f"{anomaly['expected']:.3f})."
                         )
 
                 if conn.is_connected():
                     conn.commit()
 
         except KeyboardInterrupt:
-            print("\\nFault analyser stopped.")
+            print("\nFault analyser stopped.")
             break
+
         except mysql.connector.Error as exc:
             if last_status != "db_error":
                 print(f"Database error: {exc}")
                 last_status = "db_error"
+
         except Exception as exc:
             print(f"Analyser error: {exc}")
+
         finally:
             if conn is not None and conn.is_connected():
                 conn.close()
@@ -403,3 +445,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+

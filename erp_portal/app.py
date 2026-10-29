@@ -15,6 +15,16 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.environ["SECRET_KEY"]
 
+def get_technician_instructions(text):
+    if not text:
+        return "No instructions provided."
+
+    marker = "Technician:"
+
+    if marker in text:
+        return text.split(marker, 1)[1].strip()
+
+    return text.strip()
 
 def get_db_connection():
     return mysql.connector.connect(
@@ -458,6 +468,11 @@ def technician():
         """, (session["user_id"],))
 
         work_orders = cursor.fetchall()
+
+        for order in work_orders:
+            order["instructions"] = get_technician_instructions(
+                order.get("instructions")
+            )
 
         return render_template(
             "technician.html",
